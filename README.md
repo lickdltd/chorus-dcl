@@ -6,17 +6,19 @@ Lickd Chorus DCL includes helpful solutions for integration with Lickd's Chorus 
 
 To use any of the helpers provided by this library:
 
-1. Install it as an npm package. Run this command in your scene's project folder:
+1. [Setup GitHub npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#installing-a-package)
+
+2. Install it as an npm package. Run this command in your scene's project folder:
 
    ```
    npm install @dcl/ecs-scene-utils @lickdltd/chorus-dcl -B
    ```
 
-> Note: This command also installs the latest version of the @dcl/ecs-scene-utils library, that are dependencies of the chorus-dcl library
+   > Note: This command also installs the latest version of the @dcl/ecs-scene-utils library, that are dependencies of the chorus-dcl library
 
-2. Run `dcl start` or `dcl build` so the dependencies are correctly installed.
+3. Run `dcl start` or `dcl build` so the dependencies are correctly installed.
 
-3. Add this line at the start of your game.ts file, or any other TypeScript files that require it:
+4. Add this line at the start of your game.ts file, or any other TypeScript files that require it:
 
    ```ts
    import * as chorus from '@lickdltd/chorus-dcl'
