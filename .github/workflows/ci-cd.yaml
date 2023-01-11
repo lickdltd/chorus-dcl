@@ -13,7 +13,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  package:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,13 +26,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-          registry-url: https://npm.pkg.github.com
-          scope: '@lickdltd'
       - name: Install
         run: npm install
       - name: Build
         run: npm run build
-#      - name: Publish
-#        run: npm publish
-#        env:
-#          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish
+        uses: menduz/oddish-action@master
+        with:
+          registry-url: https://npm.pkg.github.com
+          scope: lickdltd
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
