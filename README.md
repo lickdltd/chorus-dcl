@@ -1,18 +1,6 @@
-## SDK Library
+# Lickd Chorus DCL Documentation
 
-This project has the basics to start building your own library for using in Decentraland scenes.
-
-The libraries in the [Awesome Repository](https://github.com/decentraland-scenes/Awesome-Repository#Libraries) are available for all to use. We encourage you to create and share your own as well, we'd love to see the community grow and start sharing more reusable solutions to common problems through libraries!
-
-## Publish
-
-See [Create Libraries](https://docs.decentraland.org/development-guide/create-libraries/) for tips on how to design and develop your library, and for simple instructions for publishing it to NPM.
-
-Below is a template to help you craft documentation for your library, so others know how to use it.
-
-# MyAmazingLibrary Documentation
-
-myAmazingLibrary includes helpful solutions for `< insert use case >` in a Decentraland scene.
+Lickd Chorus DCL includes helpful solutions for integration with Lickd's Chorus service in a Decentraland scene.
 
 ## Install
 
@@ -21,54 +9,58 @@ To use any of the helpers provided by this library:
 1. Install it as an npm package. Run this command in your scene's project folder:
 
    ```
-   npm install myAmazingLibrary
+   npm install @lickdltd/chorus-dcl -B
    ```
 
 2. Add this line at the start of your game.ts file, or any other TypeScript files that require it:
 
    ```ts
-   import * as magic from 'myAmazingLibrary'
+   import * as chorus from '@lickdltd/chorus-dcl'
    ```
 
 ## Usage
 
-### < use case 1 >
+### Player
 
-To do `< insert use case >`, add the `MyAmazingComponent` component to the entity.
+To use the player add the `Player` component to the entity.
 
-MyAmazingComponent requires two arguments when being constructed:
+Player requires two arguments when being constructed:
 
-- `start`: Vector3 for the start position
-- `duration`: duration (in seconds)
+- `entity`: Entity for the player
+- `stream`: path of the stream connecting to
 
-MyAmazingComponent can optionally also take the following argument:
+Player can optionally also take the following argument:
 
-- `color`: Color4 value for the color. If not provided, the default value is `Color4.Red()`
+- `interval`: duration (in seconds) for the heartbeat interval
 
-This example uses MyAmazingComponent to do `< insert use case >` to an entity over a period of 2 seconds:
+This example uses Player to do initialise, start and stop the player as well as initiate the heartbeat:
 
 ```ts
-import * as magic from 'myAmazingLibrary'
+import { getUserData } from '@decentraland/Identity'
+import * as chorus from '@lickdltd/chorus-dcl'
 
-// Create entity
-const box = new Entity()
+void executeTask(async () => {
+   const chorusEntity = new Entity()
+   const chorusPlayer = new chorus.Player(chorusEntity, '/genre/mixed.mp3')
+   const me = await getUserData()
 
-// Give entity a shape and transform
-box.addComponent(new BoxShape())
-box.addComponent(new Transform())
+   await chorusPlayer.start()
 
-// Move entity
-box.addComponent(new magic.MyAmazingComponent(new Vector3(1, 1, 1), 2))
+   onEnterSceneObservable.add(async (player) => {
+      if (player.userId === me?.userId) {
+         await chorusPlayer.start()
+      }
+   })
 
-// Add entity to engine
-engine.addEntity(box)
+   onLeaveSceneObservable.add(async (player) => {
+      if (player.userId === me?.userId) {
+         await chorusPlayer.stop()
+      }
+   })
+
+   engine.addEntity(chorusEntity)
+})
 ```
-
-> Note: Be aware that if < other use case >, MyAmazingComponent will < do some other thing >.
-
-### < use case 2 >
-
-...
 
 ## Copyright info
 
