@@ -8,5 +8,5 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [sdk-library](./sdk-library.md) |  |
+|  [@lickdltd/chorus-dcl](./chorus-dcl.md) |  |
 
