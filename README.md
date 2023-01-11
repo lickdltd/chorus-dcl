@@ -12,9 +12,11 @@ To use any of the helpers provided by this library:
    npm install @dcl/ecs-scene-utils @lickdltd/chorus-dcl -B
    ```
 
-Note: This command also installs the latest version of the @dcl/ecs-scene-utils library, that are dependencies of the chorus-dcl library
+> Note: This command also installs the latest version of the @dcl/ecs-scene-utils library, that are dependencies of the chorus-dcl library
 
-2. Add this line at the start of your game.ts file, or any other TypeScript files that require it:
+2. Run `dcl start` or `dcl build` so the dependencies are correctly installed.
+
+3. Add this line at the start of your game.ts file, or any other TypeScript files that require it:
 
    ```ts
    import * as chorus from '@lickdltd/chorus-dcl'
