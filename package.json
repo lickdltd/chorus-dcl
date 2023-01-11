@@ -1,7 +1,7 @@
 {
   "name": "@lickdltd/chorus-dcl",
-  "version": "1.0.0",
-  "description": "Lickd Chorus DCL Library",
+  "version": "0.1.0",
+  "description": "Lickd Chorus DCL library",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
