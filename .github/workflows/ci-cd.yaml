@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: 16.x
           registry-url: https://npm.pkg.github.com
-          scope: @lickdltd
+          scope: '@lickdltd'
       - name: Install
         run: npm install
       - name: Build
