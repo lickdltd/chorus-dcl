@@ -33,7 +33,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Publish
+        if: github.event_name == 'release' && github.event.action == 'created'
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
