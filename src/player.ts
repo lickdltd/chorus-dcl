@@ -19,7 +19,7 @@ export class Player {
     }
 
     public async start() {
-        this.log('player starting')
+        this.log('player starting - connecting to stream', this._stream)
 
         try {
             const response = await signedFetch(Player.URL + '/api/session/create/dcl', {
@@ -41,9 +41,16 @@ export class Player {
             }
 
             this._entity.addComponent(new AudioStream(Player.URL + this._stream + '?token=' + json.token))
-            this._entity.addComponent(new utils.Interval(this._interval, async () => await this.heartbeat(json.token)))
 
             this.log('player started successfully')
+
+            if (this._interval > 0) {
+                this.log('heartbeat starting - with a pulse every', this._interval, 'milliseconds')
+                this._entity.addComponent(new utils.Interval(this._interval, async () => await this.heartbeat(json.token)))
+                this.log('heartbeat started successfully')
+            } else {
+                this.log('heartbeat disabled - this will likely result in listeners getting disconnected')
+            }
         } catch (e) {
             this.log('player failed to start', e.message)
         }
