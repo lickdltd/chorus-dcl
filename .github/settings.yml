@@ -34,7 +34,7 @@ branches:
         strict: false
         contexts:
           - build
-      enforce_admins: true
+      enforce_admins: false
       required_linear_history: true
       restrictions:
         apps: [ ]
