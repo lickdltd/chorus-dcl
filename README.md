@@ -1,4 +1,4 @@
-# Lickd Chorus DCL Documentation
+# Lickd Chorus DCL Library
 
 > ⚠️ **Warning!**  
 > 
