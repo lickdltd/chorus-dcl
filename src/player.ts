@@ -16,7 +16,7 @@ export class Player extends Entity {
 
     public constructor(stream: string) {
         Logger.log('player initialising')
-        
+
         super()
 
         engine.addEntity(this)
