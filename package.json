@@ -1,6 +1,6 @@
 {
   "name": "@lickdltd/chorus-dcl",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Lickd Chorus DCL library",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -50,8 +50,5 @@
     "node": ">=16.0.0",
     "npm": ">=8.0.0",
     "yarn": "please use npm"
-  },
-  "bundleDependencies": [
-    "@dcl/ecs-scene-utils"
-  ]
+  }
 }
