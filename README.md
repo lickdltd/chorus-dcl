@@ -47,35 +47,15 @@ To use the player add the `Player` component to the entity.
 
 Player requires two arguments when being constructed:
 
-- `entity`: Entity for the player
 - `stream`: path of the stream connecting to
 
 This example uses Player to do initialise, start and stop the player as well as initiate the heartbeat:
 
 ```ts
-import { getUserData } from '@decentraland/Identity'
 import * as chorus from '@lickdltd/chorus-dcl'
 
 void executeTask(async () => {
-   const chorusEntity = new Entity()
-   const chorusPlayer = new chorus.Player(chorusEntity, '/genre/mixed.mp3')
-   const me = await getUserData()
-
-   await chorusPlayer.start()
-
-   onEnterSceneObservable.add(async (player) => {
-      if (player.userId === me?.userId) {
-         await chorusPlayer.start()
-      }
-   })
-
-   onLeaveSceneObservable.add(async (player) => {
-      if (player.userId === me?.userId) {
-         await chorusPlayer.stop()
-      }
-   })
-
-   engine.addEntity(chorusEntity)
+   (new chorus.Player('/lickd/test.mp3')).activate()
 })
 ```
 

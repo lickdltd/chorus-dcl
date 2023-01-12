@@ -9,13 +9,12 @@ Constructs a new instance of the `Player` class
 <b>Signature:</b>
 
 ```typescript
-constructor(entity: Entity, stream: string);
+constructor(stream: string);
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  entity | Entity |  |
 |  stream | string |  |
 

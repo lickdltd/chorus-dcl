@@ -8,20 +8,16 @@
 /// <reference types="env" />
 
 // @public (undocumented)
-export class Player {
-    constructor(entity: Entity, stream: string);
+export class Player extends Entity {
+    constructor(stream: string);
     // (undocumented)
-    setEntity(entity: Entity): void;
+    activate(): Promise<void>;
     // (undocumented)
     setHeartbeat(heartbeat: boolean): void;
     // (undocumented)
     setStream(stream: string): void;
     // (undocumented)
     setUrl(url: string): void;
-    // (undocumented)
-    start(): Promise<void>;
-    // (undocumented)
-    stop(): Promise<void>;
 }
 
 // (No @packageDocumentation comment for this package)

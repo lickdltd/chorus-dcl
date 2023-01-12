@@ -1,12 +1,12 @@
-import {signedFetch} from '@decentraland/SignedFetch'
-import * as utils from '@dcl/ecs-scene-utils'
+import * as utils from "@dcl/ecs-scene-utils";
+import {signedFetch} from "@decentraland/SignedFetch";
+import {Logger} from "./logger";
+import {getUserData} from '@decentraland/Identity'
 
-export class Player {
-    private _entity: Entity
+export class Player extends Entity {
+    private _stream: string
 
     private _url: string
-
-    private _stream: string
 
     private _heartbeat: boolean
 
@@ -14,35 +14,58 @@ export class Player {
 
     private static HEARTBEAT_INTERVAL = 60000
 
-    public constructor(entity: Entity, stream: string) {
-        this.log('player initialising')
+    public constructor(stream: string) {
+        Logger.log('player initialising')
+        
+        super()
 
-        this.setEntity(entity)
-        this.setUrl(Player.URL_DEFAULT)
+        engine.addEntity(this)
+
         this.setStream(stream)
+        this.setUrl(Player.URL_DEFAULT)
         this.setHeartbeat(true)
 
-        this.log('player initialised')
-    }
-
-    public setEntity(entity: Entity) {
-        this._entity = entity
-    }
-
-    public setUrl(url: string) {
-        this._url = url
+        Logger.log('player initialised')
     }
 
     public setStream(stream: string) {
         this._stream = stream
     }
 
+    public setUrl(url: string) {
+        this._url = url
+    }
+
     public setHeartbeat(heartbeat: boolean) {
         this._heartbeat = heartbeat
     }
 
-    public async start() {
-        this.log('player starting - connecting to stream', this._stream)
+    public async activate() {
+        Logger.log('player activating')
+
+        const me = await getUserData()
+
+        onSceneReadyObservable.add(async () => {
+            await this.start()
+        })
+
+        onEnterSceneObservable.add(async (player) => {
+            if (player.userId === me?.userId) {
+                await this.start()
+            }
+        })
+
+        onLeaveSceneObservable.add(async (player) => {
+            if (player.userId === me?.userId) {
+                await this.stop()
+            }
+        })
+
+        Logger.log('player activated successfully')
+    }
+
+    private async start() {
+        Logger.log('player starting - connecting to stream', this._stream)
 
         try {
             const response = await signedFetch(this._url + '/api/session/create/dcl', {
@@ -63,33 +86,38 @@ export class Player {
                 throw new Error('session token not found')
             }
 
-            this._entity.addComponent(new AudioStream(this._url + this._stream + '?token=' + json.token))
+            this.addComponent(new AudioStream(this._url + this._stream + '?token=' + json.token))
 
-            this.log('player started successfully')
+            Logger.log('player started successfully')
 
             if (this._heartbeat) {
-                this.log('heartbeat starting')
-                this._entity.addComponent(new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token)))
-                this.log('heartbeat started successfully')
+                Logger.log('heartbeat starting')
+                this.addComponent(new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token)))
+                Logger.log('heartbeat started successfully')
             } else {
-                this.log('heartbeat disabled - this will likely result in listeners getting disconnected')
+                Logger.log('heartbeat disabled - this will likely result in listeners getting disconnected')
             }
         } catch (e) {
-            this.log('player failed to start', e.message)
+            Logger.log('player failed to start', e.message)
         }
     }
 
-    public async stop() {
-        this.log('player stopping')
+    private stop() {
+        Logger.log('player stopping')
 
-        this._entity.removeComponent(AudioStream)
-        this._entity.removeComponent(utils.Interval)
+        if (this.hasComponent(AudioStream)) {
+            this.removeComponent(AudioStream)
+        }
 
-        this.log('player stopped successfully')
+        if (this.hasComponent(utils.Interval)) {
+            this.removeComponent(utils.Interval)
+        }
+
+        Logger.log('player stopped successfully')
     }
 
     private async heartbeatPulse(token: string) {
-        this.log('heartbeat pulsing')
+        Logger.log('heartbeat pulsing')
 
         let active
 
@@ -108,19 +136,15 @@ export class Player {
                 throw new Error('unknown error')
             }
 
-            this.log('heartbeat pulsed successfully')
+            Logger.log('heartbeat pulsed successfully')
             active = true
         } catch (e) {
-            this.log('heartbeat failed to pulse', e.message)
+            Logger.log('heartbeat failed to pulse', e.message)
             active = false
         }
 
         if (!active) {
             await this.stop()
         }
-    }
-
-    private log(...args: any[]) {
-        log('[lickd-chorus]', ...args)
     }
 }

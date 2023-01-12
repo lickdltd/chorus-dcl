@@ -1,1 +1,3 @@
-export * from './player'
+import {Player} from './player'
+
+export {Player}

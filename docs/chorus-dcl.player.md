@@ -7,23 +7,22 @@
 <b>Signature:</b>
 
 ```typescript
-export declare class Player 
+export declare class Player extends Entity 
 ```
+<b>Extends:</b> Entity
 
 ## Constructors
 
 |  Constructor | Modifiers | Description |
 |  --- | --- | --- |
-|  [(constructor)(entity, stream)](./chorus-dcl.player._constructor_.md) |  | Constructs a new instance of the <code>Player</code> class |
+|  [(constructor)(stream)](./chorus-dcl.player._constructor_.md) |  | Constructs a new instance of the <code>Player</code> class |
 
 ## Methods
 
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
-|  [setEntity(entity)](./chorus-dcl.player.setentity.md) |  |  |
+|  [activate()](./chorus-dcl.player.activate.md) |  |  |
 |  [setHeartbeat(heartbeat)](./chorus-dcl.player.setheartbeat.md) |  |  |
 |  [setStream(stream)](./chorus-dcl.player.setstream.md) |  |  |
 |  [setUrl(url)](./chorus-dcl.player.seturl.md) |  |  |
-|  [start()](./chorus-dcl.player.start.md) |  |  |
-|  [stop()](./chorus-dcl.player.stop.md) |  |  |
 
