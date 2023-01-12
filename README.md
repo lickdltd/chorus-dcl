@@ -1,5 +1,20 @@
 # Lickd Chorus DCL Documentation
 
+> ⚠️ **Warning!**  
+> 
+> While in version `0.x` there is a chance of breaking changes between minor/patch version.  
+> Please be cautious when upgrading between versions and check for any upgrade guides.  
+> 
+> Once a major version is released, this will no longer be the case and this library will follow [Semantic Versioning](https://semver.org/).
+
+* [Details](#details)
+* [Install](#install)
+* [Usage](#usage)
+* [Contributing](#contributing)
+* [Copyright info](#copyright-info)
+
+## Details
+
 Lickd Chorus DCL includes helpful solutions for integration with Lickd's Chorus service in a Decentraland scene.
 
 ## Install
@@ -16,7 +31,7 @@ To use any of the helpers provided by this library:
 
    > Note: This command also installs the latest version of the @dcl/ecs-scene-utils library, that are dependencies of the chorus-dcl library
 
-3. Run `dcl start` or `dcl build` so the dependencies are correctly installed.
+3. Run `dcl start` or `dcl build` so the dependencies are correctly installed
 
 4. Add this line at the start of your game.ts file, or any other TypeScript files that require it:
 
@@ -34,10 +49,6 @@ Player requires two arguments when being constructed:
 
 - `entity`: Entity for the player
 - `stream`: path of the stream connecting to
-
-Player can optionally also take the following argument:
-
-- `interval`: duration (in seconds) for the heartbeat interval
 
 This example uses Player to do initialise, start and stop the player as well as initiate the heartbeat:
 
@@ -67,6 +78,17 @@ void executeTask(async () => {
    engine.addEntity(chorusEntity)
 })
 ```
+
+## Contributing
+
+In order to test changes made to this repository in active scenes, do the following:
+
+1. Run `npm link` on this repository
+2. On the scene directory, after you installed the dependency, run `npm link @lickdltd/chorus-dcl`
+
+> Note: When done testing, run `npm unlink @lickdltd/chorus-dcl` on your scene, so that it no longer depends on your local copy of the library.
+
+For more information, see Decentraland docs for [fast iterations](https://docs.decentraland.org/creator/development-guide/create-libraries/#fast-iterations). 
 
 ## Copyright info
 
