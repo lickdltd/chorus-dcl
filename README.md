@@ -86,7 +86,7 @@ In order to test changes made to this repository in active scenes, do the follow
 1. Run `npm link` on this repository
 2. On the scene directory, after you installed the dependency, run `npm link @lickdltd/chorus-dcl`
 
-> Note: When done testing, run `npm unlink @lickdltd/chorus-dcl` on your scene, so that it no longer depends on your local copy of the library.
+> Note: When done testing, run `npm unlink --no-save @lickdltd/chorus-dcl` on your scene, so that it no longer depends on your local copy of the library.
 
 For more information, see Decentraland docs for [fast iterations](https://docs.decentraland.org/creator/development-guide/create-libraries/#fast-iterations). 
 

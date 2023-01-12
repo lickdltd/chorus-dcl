@@ -14,12 +14,16 @@ export declare class Player
 
 |  Constructor | Modifiers | Description |
 |  --- | --- | --- |
-|  [(constructor)(entity, stream, interval)](./chorus-dcl.player._constructor_.md) |  | Constructs a new instance of the <code>Player</code> class |
+|  [(constructor)(entity, stream)](./chorus-dcl.player._constructor_.md) |  | Constructs a new instance of the <code>Player</code> class |
 
 ## Methods
 
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
+|  [setEntity(entity)](./chorus-dcl.player.setentity.md) |  |  |
+|  [setHeartbeat(heartbeat)](./chorus-dcl.player.setheartbeat.md) |  |  |
+|  [setStream(stream)](./chorus-dcl.player.setstream.md) |  |  |
+|  [setUrl(url)](./chorus-dcl.player.seturl.md) |  |  |
 |  [start()](./chorus-dcl.player.start.md) |  |  |
 |  [stop()](./chorus-dcl.player.stop.md) |  |  |
 

@@ -9,7 +9,15 @@
 
 // @public (undocumented)
 export class Player {
-    constructor(entity: Entity, stream: string, interval?: number);
+    constructor(entity: Entity, stream: string);
+    // (undocumented)
+    setEntity(entity: Entity): void;
+    // (undocumented)
+    setHeartbeat(heartbeat: boolean): void;
+    // (undocumented)
+    setStream(stream: string): void;
+    // (undocumented)
+    setUrl(url: string): void;
     // (undocumented)
     start(): Promise<void>;
     // (undocumented)
