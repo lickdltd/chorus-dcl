@@ -2,27 +2,50 @@ import {signedFetch} from '@decentraland/SignedFetch'
 import * as utils from '@dcl/ecs-scene-utils'
 
 export class Player {
-    private readonly _entity: Entity
-    private readonly _stream: string
-    private readonly _interval: number
+    private _entity: Entity
 
-    private static URL = 'https://chorus.lickd.co'
+    private _url: string
 
-    public constructor(entity: Entity, stream: string, interval: number = 60000) {
+    private _stream: string
+
+    private _heartbeat: boolean
+
+    private static URL_DEFAULT = 'https://chorus.lickd.co'
+
+    private static HEARTBEAT_INTERVAL = 60000
+
+    public constructor(entity: Entity, stream: string) {
         this.log('player initialising')
 
-        this._entity = entity
-        this._stream = stream
-        this._interval = interval
+        this.setEntity(entity)
+        this.setUrl(Player.URL_DEFAULT)
+        this.setStream(stream)
+        this.setHeartbeat(true)
 
         this.log('player initialised')
+    }
+
+    public setEntity(entity: Entity) {
+        this._entity = entity
+    }
+
+    public setUrl(url: string) {
+        this._url = url
+    }
+
+    public setStream(stream: string) {
+        this._stream = stream
+    }
+
+    public setHeartbeat(heartbeat: boolean) {
+        this._heartbeat = heartbeat
     }
 
     public async start() {
         this.log('player starting - connecting to stream', this._stream)
 
         try {
-            const response = await signedFetch(Player.URL + '/api/session/create/dcl', {
+            const response = await signedFetch(this._url + '/api/session/create/dcl', {
                 headers: {'Content-Type': 'application/json'},
                 method: 'POST',
                 body: JSON.stringify({
@@ -40,13 +63,13 @@ export class Player {
                 throw new Error('session token not found')
             }
 
-            this._entity.addComponent(new AudioStream(Player.URL + this._stream + '?token=' + json.token))
+            this._entity.addComponent(new AudioStream(this._url + this._stream + '?token=' + json.token))
 
             this.log('player started successfully')
 
-            if (this._interval > 0) {
-                this.log('heartbeat starting - with a pulse every', this._interval, 'milliseconds')
-                this._entity.addComponent(new utils.Interval(this._interval, async () => await this.heartbeat(json.token)))
+            if (this._heartbeat) {
+                this.log('heartbeat starting')
+                this._entity.addComponent(new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token)))
                 this.log('heartbeat started successfully')
             } else {
                 this.log('heartbeat disabled - this will likely result in listeners getting disconnected')
@@ -65,20 +88,24 @@ export class Player {
         this.log('player stopped successfully')
     }
 
-    private async heartbeat(token: string) {
+    private async heartbeatPulse(token: string) {
         this.log('heartbeat pulsing')
 
         let active
 
         try {
-            const response = await signedFetch(Player.URL + '/api/session/heartbeat/dcl', {
+            const response = await signedFetch(this._url + '/api/session/heartbeat/dcl', {
                 headers: {'Content-Type': 'application/json'},
                 method: 'POST',
                 body: JSON.stringify({token})
             })
 
+            if (response.status === 404) {
+                throw new Error('heartbeat not found')
+            }
+
             if (response.status !== 200) {
-                throw new Error()
+                throw new Error('unknown error')
             }
 
             this.log('heartbeat pulsed successfully')
