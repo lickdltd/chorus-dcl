@@ -33,11 +33,13 @@ To use any of the helpers provided by this library:
 
 3. Run `dcl start` or `dcl build` so the dependencies are correctly installed
 
-4. Add this line at the start of your game.ts file, or any other TypeScript files that require it:
+4. Add this line at the start of your `game.ts` file, or any other TypeScript files that require it:
 
    ```ts
    import * as chorus from '@lickdltd/chorus-dcl'
    ```
+
+5. Add `USE_FETCH` to `requiredPermissions` list in your `scene.json` file
 
 ## Usage
 
