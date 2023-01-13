@@ -8,7 +8,9 @@
     "docs": "api-documenter markdown --output-folder docs/ --input-folder temp/",
     "build": "rm -rf temp/ && rollup -c && npm run docs",
     "link": "npm link && rollup --watch -c ",
-    "test": "jest --detectOpenHandles --silent=false --verbose --colors --runInBand"
+    "test": "jest --detectOpenHandles --silent=false --verbose --colors --runInBand",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
   },
   "typings": "./dist/index.d.ts",
   "decentralandLibrary": {
@@ -34,6 +36,7 @@
   ],
   "devDependencies": {
     "@dcl/ecs-scene-utils": "^1.7.5",
+    "@dcl/eslint-config": "^1.0.6",
     "@microsoft/api-documenter": "^7.17.11",
     "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-node-resolve": "^13.1.3",

@@ -1,150 +1,152 @@
-import * as utils from "@dcl/ecs-scene-utils";
-import {signedFetch} from "@decentraland/SignedFetch";
-import {Logger} from "./logger";
-import {getUserData} from '@decentraland/Identity'
+import { getUserData } from '@decentraland/Identity'
+import { signedFetch } from '@decentraland/SignedFetch'
+import * as utils from '@dcl/ecs-scene-utils'
+import { Logger } from './logger'
 
 export class Player extends Entity {
-    private _stream: string
+  private _stream: string
 
-    private _url: string
+  private _url: string
 
-    private _heartbeat: boolean
+  private _heartbeat: boolean
 
-    private static URL_DEFAULT = 'https://chorus.lickd.co'
+  private static URL_DEFAULT = 'https://chorus.lickd.co'
 
-    private static HEARTBEAT_INTERVAL = 60000
+  private static HEARTBEAT_INTERVAL = 60000
 
-    public constructor(stream: string) {
-        Logger.log('player initialising')
+  public constructor(stream: string) {
+    Logger.log('player initialising')
 
-        super()
+    super()
 
-        engine.addEntity(this)
+    engine.addEntity(this)
 
-        this.setStream(stream)
-        this.setUrl(Player.URL_DEFAULT)
-        this.setHeartbeat(true)
+    this.setStream(stream)
+    this.setUrl(Player.URL_DEFAULT)
+    this.setHeartbeat(true)
 
-        Logger.log('player initialised')
-    }
+    Logger.log('player initialised')
+  }
 
-    public setStream(stream: string) {
-        this._stream = stream
-    }
+  public setStream(stream: string) {
+    this._stream = stream
+  }
 
-    public setUrl(url: string) {
-        this._url = url
-    }
+  public setUrl(url: string) {
+    this._url = url
+  }
 
-    public setHeartbeat(heartbeat: boolean) {
-        this._heartbeat = heartbeat
-    }
+  public setHeartbeat(heartbeat: boolean) {
+    this._heartbeat = heartbeat
+  }
 
-    public async activate() {
-        Logger.log('player activating')
+  public async activate() {
+    Logger.log('player activating')
 
-        const me = await getUserData()
+    const me = await getUserData()
 
-        onSceneReadyObservable.add(async () => {
-            await this.start()
+    onSceneReadyObservable.add(async () => {
+      await this.start()
+    })
+
+    onEnterSceneObservable.add(async (player) => {
+      if (player.userId === me?.userId) {
+        await this.start()
+      }
+    })
+
+    onLeaveSceneObservable.add(async (player) => {
+      if (player.userId === me?.userId) {
+        await this.stop()
+      }
+    })
+
+    Logger.log('player activated successfully')
+  }
+
+  private async start() {
+    Logger.log('player starting - connecting to stream', this._stream)
+
+    try {
+      const response = await signedFetch(this._url + '/api/session/create/dcl', {
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        body: JSON.stringify({
+          stream: this._stream
         })
+      })
 
-        onEnterSceneObservable.add(async (player) => {
-            if (player.userId === me?.userId) {
-                await this.start()
-            }
-        })
+      if (response.status !== 200) {
+        throw new Error('session could not be created')
+      }
 
-        onLeaveSceneObservable.add(async (player) => {
-            if (player.userId === me?.userId) {
-                await this.stop()
-            }
-        })
+      const json = await JSON.parse(response.text || '{}')
 
-        Logger.log('player activated successfully')
+      if (!json.token) {
+        throw new Error('session token not found')
+      }
+
+      this.addComponent(new AudioStream(this._url + this._stream + '?token=' + json.token))
+
+      Logger.log('player started successfully')
+
+      if (this._heartbeat) {
+        Logger.log('heartbeat starting')
+        this.addComponent(
+          new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token))
+        )
+        Logger.log('heartbeat started successfully')
+      } else {
+        Logger.log('heartbeat disabled - this will likely result in listeners getting disconnected')
+      }
+    } catch (e) {
+      Logger.log('player failed to start', e.message)
+    }
+  }
+
+  private stop() {
+    Logger.log('player stopping')
+
+    if (this.hasComponent(AudioStream)) {
+      this.removeComponent(AudioStream)
     }
 
-    private async start() {
-        Logger.log('player starting - connecting to stream', this._stream)
-
-        try {
-            const response = await signedFetch(this._url + '/api/session/create/dcl', {
-                headers: {'Content-Type': 'application/json'},
-                method: 'POST',
-                body: JSON.stringify({
-                    stream: this._stream
-                })
-            })
-
-            if (response.status !== 200) {
-                throw new Error('session could not be created')
-            }
-
-            const json = await JSON.parse(response.text || '{}')
-
-            if (!json.token) {
-                throw new Error('session token not found')
-            }
-
-            this.addComponent(new AudioStream(this._url + this._stream + '?token=' + json.token))
-
-            Logger.log('player started successfully')
-
-            if (this._heartbeat) {
-                Logger.log('heartbeat starting')
-                this.addComponent(new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token)))
-                Logger.log('heartbeat started successfully')
-            } else {
-                Logger.log('heartbeat disabled - this will likely result in listeners getting disconnected')
-            }
-        } catch (e) {
-            Logger.log('player failed to start', e.message)
-        }
+    if (this.hasComponent(utils.Interval)) {
+      this.removeComponent(utils.Interval)
     }
 
-    private stop() {
-        Logger.log('player stopping')
+    Logger.log('player stopped successfully')
+  }
 
-        if (this.hasComponent(AudioStream)) {
-            this.removeComponent(AudioStream)
-        }
+  private async heartbeatPulse(token: string) {
+    Logger.log('heartbeat pulsing')
 
-        if (this.hasComponent(utils.Interval)) {
-            this.removeComponent(utils.Interval)
-        }
+    let active
 
-        Logger.log('player stopped successfully')
+    try {
+      const response = await signedFetch(this._url + '/api/session/heartbeat/dcl', {
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        body: JSON.stringify({ token })
+      })
+
+      if (response.status === 404) {
+        throw new Error('heartbeat not found')
+      }
+
+      if (response.status !== 200) {
+        throw new Error('unknown error')
+      }
+
+      Logger.log('heartbeat pulsed successfully')
+      active = true
+    } catch (e) {
+      Logger.log('heartbeat failed to pulse', e.message)
+      active = false
     }
 
-    private async heartbeatPulse(token: string) {
-        Logger.log('heartbeat pulsing')
-
-        let active
-
-        try {
-            const response = await signedFetch(this._url + '/api/session/heartbeat/dcl', {
-                headers: {'Content-Type': 'application/json'},
-                method: 'POST',
-                body: JSON.stringify({token})
-            })
-
-            if (response.status === 404) {
-                throw new Error('heartbeat not found')
-            }
-
-            if (response.status !== 200) {
-                throw new Error('unknown error')
-            }
-
-            Logger.log('heartbeat pulsed successfully')
-            active = true
-        } catch (e) {
-            Logger.log('heartbeat failed to pulse', e.message)
-            active = false
-        }
-
-        if (!active) {
-            await this.stop()
-        }
+    if (!active) {
+      await this.stop()
     }
+  }
 }

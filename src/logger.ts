@@ -1,7 +1,7 @@
 export class Logger {
-    private static PREFIX = '[lickd-chorus]'
+  private static PREFIX = '[lickd-chorus]'
 
-    static log(...args: any[]) {
-        log(Logger.PREFIX, ...args)
-    }
+  static log(...args: any[]) {
+    log(Logger.PREFIX, ...args)
+  }
 }
