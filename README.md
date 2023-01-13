@@ -57,7 +57,7 @@ This example uses Player to do initialise, start and stop the player as well as 
 import * as chorus from '@lickdltd/chorus-dcl'
 
 void executeTask(async () => {
-   await (new chorus.Player('/lickd/test.mp3')).activate()
+   await (new chorus.Player('<CHORUS_STREAM_PATH>')).activate()
 })
 ```
 
