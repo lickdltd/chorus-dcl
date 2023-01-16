@@ -51,14 +51,24 @@ Player requires two arguments when being constructed:
 
 - `stream`: path of the stream connecting to
 
+#### Basic
+
 This example uses Player to do initialise, start and stop the player as well as initiate the heartbeat:
 
 ```ts
 import * as chorus from '@lickdltd/chorus-dcl'
 
-void executeTask(async () => {
-   await (new chorus.Player('<CHORUS_STREAM_PATH>')).activate()
-})
+(new chorus.Player('<CHORUS_STREAM_PATH>')).activate()
+```
+
+#### Change Chorus URL
+
+This example allows for changing the URL for the Chorus service:
+
+```ts
+import * as chorus from '@lickdltd/chorus-dcl'
+
+(new chorus.Player('<CHORUS_STREAM_PATH>')).setUrl('<CHORUS_URL>').activate()
 ```
 
 ## Contributing

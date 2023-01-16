@@ -13,11 +13,11 @@ export class Player extends Entity {
     // (undocumented)
     activate(): Promise<void>;
     // (undocumented)
-    setHeartbeat(heartbeat: boolean): void;
+    setHeartbeat(heartbeat: boolean): this;
     // (undocumented)
-    setStream(stream: string): void;
+    setStream(stream: string): this;
     // (undocumented)
-    setUrl(url: string): void;
+    setUrl(url: string): this;
 }
 
 // (No @packageDocumentation comment for this package)

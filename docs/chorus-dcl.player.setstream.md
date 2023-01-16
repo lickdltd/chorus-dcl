@@ -7,7 +7,7 @@
 <b>Signature:</b>
 
 ```typescript
-setStream(stream: string): void;
+setStream(stream: string): this;
 ```
 
 ## Parameters
@@ -18,5 +18,5 @@ setStream(stream: string): void;
 
 <b>Returns:</b>
 
-void
+this
 

@@ -28,16 +28,22 @@ export class Player extends Entity {
     Logger.log('player initialised')
   }
 
-  public setStream(stream: string) {
+  public setStream(stream: string): this {
     this._stream = stream
+
+    return this
   }
 
-  public setUrl(url: string) {
+  public setUrl(url: string): this {
     this._url = url
+
+    return this
   }
 
-  public setHeartbeat(heartbeat: boolean) {
+  public setHeartbeat(heartbeat: boolean): this {
     this._heartbeat = heartbeat
+
+    return this
   }
 
   public async activate() {

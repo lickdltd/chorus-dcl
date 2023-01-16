@@ -7,7 +7,7 @@
 <b>Signature:</b>
 
 ```typescript
-setUrl(url: string): void;
+setUrl(url: string): this;
 ```
 
 ## Parameters
@@ -18,5 +18,5 @@ setUrl(url: string): void;
 
 <b>Returns:</b>
 
-void
+this
 

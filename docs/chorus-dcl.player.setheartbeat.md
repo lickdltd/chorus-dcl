@@ -7,7 +7,7 @@
 <b>Signature:</b>
 
 ```typescript
-setHeartbeat(heartbeat: boolean): void;
+setHeartbeat(heartbeat: boolean): this;
 ```
 
 ## Parameters
@@ -18,5 +18,5 @@ setHeartbeat(heartbeat: boolean): void;
 
 <b>Returns:</b>
 
-void
+this
 
