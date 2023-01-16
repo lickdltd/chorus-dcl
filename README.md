@@ -53,7 +53,7 @@ Player requires two arguments when being constructed:
 
 #### Basic
 
-This example uses Player to do initialise, start and stop the player as well as initiate the heartbeat:
+This example uses Player to initialise, start and stop the player as well as initiate the heartbeat:
 
 ```ts
 import * as chorus from '@lickdltd/chorus-dcl'
