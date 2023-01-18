@@ -165,10 +165,10 @@ export class Player extends Entity {
     }
   }
 
-  private stop() {
+  private stop(force: boolean = false) {
     Logger.log('player stop triggered')
 
-    if (this.isPlaying() && this.isActiveInScene()) {
+    if (!force && this.isPlaying() && this.isActiveInScene()) {
       Logger.log('player stop skipped - listener connected to player and is still active in scene')
       return
     }
@@ -184,6 +184,15 @@ export class Player extends Entity {
     }
 
     Logger.log('player stopped successfully')
+  }
+
+  private async restart() {
+    Logger.log('player restart triggered')
+
+    this.stop(true)
+    await this.start()
+
+    Logger.log('player restarted successfully')
   }
 
   private async heartbeatPulse(token: string) {
@@ -214,7 +223,7 @@ export class Player extends Entity {
     }
 
     if (!active) {
-      await this.stop()
+      await this.restart()
     }
   }
 }
