@@ -14,6 +14,10 @@ export class Player extends Entity {
 
   private static URL_DEFAULT: string = 'https://chorus.lickd.co'
 
+  private static ACTIVATE_INTERVAL: number = 1000
+
+  private static TRIGGER_INTERVAL: number = 100
+
   private static HEARTBEAT_INTERVAL: number = 60000
 
   public constructor(stream: string) {
@@ -63,7 +67,7 @@ export class Player extends Entity {
     Logger.log('player activating')
 
     this.addComponent(
-      new utils.Interval(1000, async () => {
+      new utils.Interval(Player.ACTIVATE_INTERVAL, async () => {
         const x: number = Camera.instance.position.x !== 0 ? Camera.instance.position.x : -1
         const y: number = Camera.instance.position.y !== 0 ? Camera.instance.position.y : -1
         const z: number = Camera.instance.position.z !== 0 ? Camera.instance.position.z : -1
@@ -100,8 +104,8 @@ export class Player extends Entity {
 
       box.addComponent(
         new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
-          onCameraEnter: () => utils.setTimeout(100, () => this.start()),
-          onCameraExit: () => utils.setTimeout(100, () => this.stop())
+          onCameraEnter: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.start()),
+          onCameraExit: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.stop())
         })
       )
 
