@@ -22,6 +22,8 @@ export declare class Player extends Entity
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
 |  [activate()](./chorus-dcl.player.activate.md) |  |  |
+|  [isActiveInScene()](./chorus-dcl.player.isactiveinscene.md) |  |  |
+|  [isPlaying()](./chorus-dcl.player.isplaying.md) |  |  |
 |  [setHeartbeat(heartbeat)](./chorus-dcl.player.setheartbeat.md) |  |  |
 |  [setStream(stream)](./chorus-dcl.player.setstream.md) |  |  |
 |  [setUrl(url)](./chorus-dcl.player.seturl.md) |  |  |

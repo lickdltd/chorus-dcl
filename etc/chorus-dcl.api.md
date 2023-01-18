@@ -5,13 +5,16 @@
 ```ts
 
 /// <reference types="dcl" />
-/// <reference types="env" />
 
 // @public (undocumented)
 export class Player extends Entity {
     constructor(stream: string);
     // (undocumented)
-    activate(): Promise<void>;
+    activate(): void;
+    // (undocumented)
+    isActiveInScene(): boolean;
+    // (undocumented)
+    isPlaying(): boolean;
     // (undocumented)
     setHeartbeat(heartbeat: boolean): this;
     // (undocumented)

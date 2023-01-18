@@ -7,9 +7,9 @@
 <b>Signature:</b>
 
 ```typescript
-activate(): Promise<void>;
+activate(): void;
 ```
 <b>Returns:</b>
 
-Promise&lt;void&gt;
+void
 

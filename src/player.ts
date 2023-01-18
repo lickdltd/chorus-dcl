@@ -1,5 +1,5 @@
-import { getUserData } from '@decentraland/Identity'
-import { signedFetch } from '@decentraland/SignedFetch'
+import { getParcel, SceneParcels } from '@decentraland/ParcelIdentity'
+import { FlatFetchResponse, signedFetch } from '@decentraland/SignedFetch'
 import * as utils from '@dcl/ecs-scene-utils'
 import { Logger } from './logger'
 
@@ -10,9 +10,11 @@ export class Player extends Entity {
 
   private _heartbeat: boolean
 
-  private static URL_DEFAULT = 'https://chorus.lickd.co'
+  private _parcels: string[] = []
 
-  private static HEARTBEAT_INTERVAL = 60000
+  private static URL_DEFAULT: string = 'https://chorus.lickd.co'
+
+  private static HEARTBEAT_INTERVAL: number = 60000
 
   public constructor(stream: string) {
     Logger.log('player initialising')
@@ -46,35 +48,84 @@ export class Player extends Entity {
     return this
   }
 
-  public async activate() {
+  public isActiveInScene(): boolean {
+    const x: number = Math.floor(Camera.instance.worldPosition.x / 16)
+    const z: number = Math.floor(Camera.instance.worldPosition.z / 16)
+
+    return this._parcels.indexOf([x, z].join(',')) >= 0
+  }
+
+  public isPlaying(): boolean {
+    return this.hasComponent(AudioStream)
+  }
+
+  public activate() {
     Logger.log('player activating')
 
-    const me = await getUserData()
+    this.addComponent(
+      new utils.Interval(1000, async () => {
+        const x: number = Camera.instance.position.x !== 0 ? Camera.instance.position.x : -1
+        const y: number = Camera.instance.position.y !== 0 ? Camera.instance.position.y : -1
+        const z: number = Camera.instance.position.z !== 0 ? Camera.instance.position.z : -1
 
-    onSceneReadyObservable.add(async () => {
-      await this.start()
+        if (x < 0 && y < 0 && z < 0) {
+          Logger.log('player activation waiting - no camera activity yet')
+          return
+        }
+
+        this.removeComponent(utils.Interval)
+
+        this.createTriggerArea((await getParcel()).land.sceneJsonData.scene)
+
+        Logger.log('player activated successfully')
+      })
+    )
+  }
+
+  private createTriggerArea(scene: SceneParcels) {
+    const baseSplit: string[] = scene.base.split(',', 2)
+    const baseOffset: Vector3 = new Vector3(parseInt(baseSplit[0]), 0, parseInt(baseSplit[1]))
+    const height: number = Math.round((Math.log(scene.parcels.length + 1) / Math.log(2)) * 20)
+
+    scene.parcels.forEach((parcel) => {
+      const parcelSplit: string[] = parcel.split(',', 2)
+      const box: Entity = new Entity()
+
+      const size: Vector3 = new Vector3(16, height, 16)
+      const position: Vector3 = new Vector3(
+        (parseInt(parcelSplit[0]) - baseOffset.x) * 16 + 8,
+        0,
+        (parseInt(parcelSplit[1]) - baseOffset.z) * 16 + 8
+      )
+
+      box.addComponent(
+        new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
+          onCameraEnter: () => utils.setTimeout(100, () => this.start()),
+          onCameraExit: () => utils.setTimeout(100, () => this.stop())
+        })
+      )
+
+      engine.addEntity(box)
+
+      this._parcels.push(parcel)
     })
-
-    onEnterSceneObservable.add(async (player) => {
-      if (player.userId === me?.userId) {
-        await this.start()
-      }
-    })
-
-    onLeaveSceneObservable.add(async (player) => {
-      if (player.userId === me?.userId) {
-        await this.stop()
-      }
-    })
-
-    Logger.log('player activated successfully')
   }
 
   private async start() {
+    Logger.log('player start triggered')
+
+    if (this.isPlaying()) {
+      Logger.log('player start skipped - listener already connected to player')
+      return
+    } else if (!this.isActiveInScene()) {
+      Logger.log('player start skipped - listener is not active in scene')
+      return
+    }
+
     Logger.log('player starting - connecting to stream', this._stream)
 
     try {
-      const response = await signedFetch(this._url + '/api/session/create/dcl', {
+      const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/create/dcl', {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify({
@@ -86,19 +137,19 @@ export class Player extends Entity {
         throw new Error('session could not be created')
       }
 
-      const json = await JSON.parse(response.text || '{}')
+      const json: any = await JSON.parse(response.text || '{}')
 
       if (!json.token) {
         throw new Error('session token not found')
       }
 
-      this.addComponent(new AudioStream(this._url + this._stream + '?token=' + json.token))
+      this.addComponentOrReplace(new AudioStream(this._url + this._stream + '?token=' + json.token))
 
       Logger.log('player started successfully')
 
       if (this._heartbeat) {
         Logger.log('heartbeat starting')
-        this.addComponent(
+        this.addComponentOrReplace(
           new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token))
         )
         Logger.log('heartbeat started successfully')
@@ -111,6 +162,13 @@ export class Player extends Entity {
   }
 
   private stop() {
+    Logger.log('player stop triggered')
+
+    if (this.isPlaying() && this.isActiveInScene()) {
+      Logger.log('player stop skipped - listener connected to player and is still active in scene')
+      return
+    }
+
     Logger.log('player stopping')
 
     if (this.hasComponent(AudioStream)) {
@@ -127,10 +185,10 @@ export class Player extends Entity {
   private async heartbeatPulse(token: string) {
     Logger.log('heartbeat pulsing')
 
-    let active
+    let active: boolean
 
     try {
-      const response = await signedFetch(this._url + '/api/session/heartbeat/dcl', {
+      const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/heartbeat/dcl', {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
         body: JSON.stringify({ token })
