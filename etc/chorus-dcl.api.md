@@ -8,19 +8,25 @@
 
 // @public (undocumented)
 export class Player extends Entity {
-    constructor(stream: string);
+    constructor(stream: string, parcels?: string[]);
     // (undocumented)
-    activate(): void;
+    activate(): this;
     // (undocumented)
-    isActiveInScene(): boolean;
+    isConnected(): boolean;
     // (undocumented)
     isPlaying(): boolean;
     // (undocumented)
+    pause(): void;
+    // (undocumented)
+    play(): void;
+    // (undocumented)
+    setAutoplay(autoplay: boolean): this;
+    // (undocumented)
     setHeartbeat(heartbeat: boolean): this;
     // (undocumented)
-    setStream(stream: string): this;
-    // (undocumented)
     setUrl(url: string): this;
+    // (undocumented)
+    setVolume(volume: number): this;
 }
 
 // (No @packageDocumentation comment for this package)

@@ -9,7 +9,7 @@ Constructs a new instance of the `Player` class
 <b>Signature:</b>
 
 ```typescript
-constructor(stream: string);
+constructor(stream: string, parcels?: string[]);
 ```
 
 ## Parameters
@@ -17,4 +17,5 @@ constructor(stream: string);
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  stream | string |  |
+|  parcels | string\[\] | <i>(Optional)</i> |
 

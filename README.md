@@ -53,12 +53,51 @@ Player requires two arguments when being constructed:
 
 #### Basic
 
-This example uses Player to initialise, start and stop the player as well as initiate the heartbeat:
+This example uses Player to initialise, start and stop the player as well as initiate the heartbeat for the whole scene:
 
 ```ts
 import * as chorus from '@lickdltd/chorus-dcl'
 
 (new chorus.Player('<CHORUS_STREAM_PATH>')).activate()
+```
+
+#### Target specific parcels
+
+This example allows for targeting specific parcels rather than the whole scene:
+
+```ts
+import * as utils from '@dcl/ecs-scene-utils'
+import * as chorus from '@lickdltd/chorus-dcl'
+
+const parcelBase = ['-150', '150']
+const parcelChorus = ['-149', '150']
+
+const chorusPlayer = (new chorus.Player('<CHORUS_STREAM_PATH>', [parcelChorus.join(',')]))
+  .setAutoplay(false)
+  .activate()
+
+// use these in custom events/triggers as needed
+// chorusPlayer.play()
+// chorusPlayer.pause()
+
+const box = new Entity()
+
+const baseOffset: Vector3 = new Vector3(parseInt(parcelBase[0]), 0, parseInt(parcelBase[1]))
+const size: Vector3 = new Vector3(16, 30, 16)
+const position: Vector3 = new Vector3(
+  (parseInt(parcelChorus[0]) - baseOffset.x) * 16 + 8,
+  0,
+  (parseInt(parcelChorus[1]) - baseOffset.z) * 16 + 8
+)
+
+box.addComponent(
+  new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
+    onCameraEnter: () => player.play(),
+    onCameraExit: () => player.pause()
+  })
+)
+
+engine.addEntity(box)
 ```
 
 #### Change Chorus URL

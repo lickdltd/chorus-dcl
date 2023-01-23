@@ -15,16 +15,19 @@ export declare class Player extends Entity
 
 |  Constructor | Modifiers | Description |
 |  --- | --- | --- |
-|  [(constructor)(stream)](./chorus-dcl.player._constructor_.md) |  | Constructs a new instance of the <code>Player</code> class |
+|  [(constructor)(stream, parcels)](./chorus-dcl.player._constructor_.md) |  | Constructs a new instance of the <code>Player</code> class |
 
 ## Methods
 
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
 |  [activate()](./chorus-dcl.player.activate.md) |  |  |
-|  [isActiveInScene()](./chorus-dcl.player.isactiveinscene.md) |  |  |
+|  [isConnected()](./chorus-dcl.player.isconnected.md) |  |  |
 |  [isPlaying()](./chorus-dcl.player.isplaying.md) |  |  |
+|  [pause()](./chorus-dcl.player.pause.md) |  |  |
+|  [play()](./chorus-dcl.player.play.md) |  |  |
+|  [setAutoplay(autoplay)](./chorus-dcl.player.setautoplay.md) |  |  |
 |  [setHeartbeat(heartbeat)](./chorus-dcl.player.setheartbeat.md) |  |  |
-|  [setStream(stream)](./chorus-dcl.player.setstream.md) |  |  |
 |  [setUrl(url)](./chorus-dcl.player.seturl.md) |  |  |
+|  [setVolume(volume)](./chorus-dcl.player.setvolume.md) |  |  |
 

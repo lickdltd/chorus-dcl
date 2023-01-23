@@ -4,13 +4,19 @@ import * as utils from '@dcl/ecs-scene-utils'
 import { Logger } from './logger'
 
 export class Player extends Entity {
-  private _stream: string
+  private readonly _stream: string
+
+  private _parcels: string[] = []
 
   private _url: string
 
+  private _autoplay: boolean
+
+  private _volume: number
+
   private _heartbeat: boolean
 
-  private _parcels: string[] = []
+  private _activated: boolean
 
   private static URL_DEFAULT: string = 'https://chorus.lickd.co'
 
@@ -20,28 +26,38 @@ export class Player extends Entity {
 
   private static HEARTBEAT_INTERVAL: number = 60000
 
-  public constructor(stream: string) {
+  public constructor(stream: string, parcels: string[] = []) {
     Logger.log('player initialising')
 
     super()
 
     engine.addEntity(this)
 
-    this.setStream(stream)
+    this._stream = stream
+    this._parcels = parcels
+
     this.setUrl(Player.URL_DEFAULT)
+    this.setAutoplay(true)
+    this.setVolume(1.0)
     this.setHeartbeat(true)
 
     Logger.log('player initialised')
   }
 
-  public setStream(stream: string): this {
-    this._stream = stream
+  public setUrl(url: string): this {
+    this._url = url
 
     return this
   }
 
-  public setUrl(url: string): this {
-    this._url = url
+  public setAutoplay(autoplay: boolean): this {
+    this._autoplay = autoplay
+
+    return this
+  }
+
+  public setVolume(volume: number): this {
+    this._volume = volume > 0.0 && volume <= 1.0 ? volume : 1.0
 
     return this
   }
@@ -52,19 +68,57 @@ export class Player extends Entity {
     return this
   }
 
-  public isActiveInScene(): boolean {
+  public isConnected(): boolean {
+    return this.hasComponent(AudioStream) && this.getComponent(AudioStream).playing
+  }
+
+  public isPlaying(): boolean {
+    return this.isConnected() && this.getComponent(AudioStream).volume > 0.0
+  }
+
+  private isActiveInScene(): boolean {
     const x: number = Math.floor(Camera.instance.worldPosition.x / 16)
     const z: number = Math.floor(Camera.instance.worldPosition.z / 16)
 
     return this._parcels.indexOf([x, z].join(',')) >= 0
   }
 
-  public isPlaying(): boolean {
-    return this.hasComponent(AudioStream)
+  public play(): void {
+    Logger.log('player play triggered')
+
+    if (this._activated === undefined) {
+      Logger.log('activation not triggered')
+      return
+    }
+
+    if (!this._activated || !this.isConnected()) {
+      Logger.log('waiting for player connection')
+      utils.setTimeout(Player.ACTIVATE_INTERVAL, () => this.play())
+      return
+    }
+
+    this.getComponent(AudioStream).volume = this._volume
+
+    Logger.log('player playing successfully')
   }
 
-  public activate() {
+  public pause(): void {
+    Logger.log('player pause triggered')
+
+    if (!this.isConnected()) {
+      Logger.log('player not yet connected')
+      return
+    }
+
+    this.getComponent(AudioStream).volume = 0
+
+    Logger.log('player paused successfully')
+  }
+
+  public activate(): this {
     Logger.log('player activating')
+
+    this._activated = false
 
     this.addComponent(
       new utils.Interval(Player.ACTIVATE_INTERVAL, async () => {
@@ -84,6 +138,10 @@ export class Player extends Entity {
         Logger.log('player activated successfully')
       })
     )
+
+    this._activated = true
+
+    return this
   }
 
   private createTriggerArea(scene: SceneParcels) {
@@ -91,7 +149,18 @@ export class Player extends Entity {
     const baseOffset: Vector3 = new Vector3(parseInt(baseSplit[0]), 0, parseInt(baseSplit[1]))
     const height: number = Math.round((Math.log(scene.parcels.length + 1) / Math.log(2)) * 20)
 
-    scene.parcels.forEach((parcel) => {
+    if (this._parcels.length <= 0) {
+      this._parcels = scene.parcels
+    }
+
+    this._parcels.forEach((parcel) => {
+      if (scene.parcels.indexOf(parcel) < 0) {
+        Logger.log(parcel, 'parcel does NOT belong to scene, skipping')
+        return
+      }
+
+      Logger.log(parcel, 'parcel does belong to scene')
+
       const parcelSplit: string[] = parcel.split(',', 2)
       const box: Entity = new Entity()
 
@@ -104,29 +173,27 @@ export class Player extends Entity {
 
       box.addComponent(
         new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
-          onCameraEnter: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.start()),
-          onCameraExit: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.stop())
+          onCameraEnter: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.connect(this._autoplay)),
+          onCameraExit: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.disconnect())
         })
       )
 
       engine.addEntity(box)
-
-      this._parcels.push(parcel)
     })
   }
 
-  private async start() {
-    Logger.log('player start triggered')
+  private async connect(play: boolean) {
+    Logger.log('player connect triggered')
 
     if (this.isPlaying()) {
-      Logger.log('player start skipped - listener already connected to player')
+      Logger.log('player connect skipped - listener already connected to player')
       return
     } else if (!this.isActiveInScene()) {
-      Logger.log('player start skipped - listener is not active in scene')
+      Logger.log('player connect skipped - listener is not active in scene')
       return
     }
 
-    Logger.log('player starting - connecting to stream', this._stream)
+    Logger.log('player connecting to stream', this._stream)
 
     try {
       const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/create/dcl', {
@@ -149,7 +216,12 @@ export class Player extends Entity {
 
       this.addComponentOrReplace(new AudioStream(this._url + this._stream + '?token=' + json.token))
 
-      Logger.log('player started successfully')
+      this.pause()
+      if (play) {
+        this.play()
+      }
+
+      Logger.log('player connected successfully')
 
       if (this._heartbeat) {
         Logger.log('heartbeat starting')
@@ -161,19 +233,19 @@ export class Player extends Entity {
         Logger.log('heartbeat disabled - this will likely result in listeners getting disconnected')
       }
     } catch (e) {
-      Logger.log('player failed to start', e.message)
+      Logger.log('player failed to connect', e.message)
     }
   }
 
-  private stop(force: boolean = false) {
-    Logger.log('player stop triggered')
+  private disconnect(force: boolean = false) {
+    Logger.log('player disconnect triggered')
 
     if (!force && this.isPlaying() && this.isActiveInScene()) {
-      Logger.log('player stop skipped - listener connected to player and is still active in scene')
+      Logger.log('player disconnect skipped - listener connected to player and is still active in scene')
       return
     }
 
-    Logger.log('player stopping')
+    Logger.log('player disconnecting')
 
     if (this.hasComponent(AudioStream)) {
       this.removeComponent(AudioStream)
@@ -183,16 +255,18 @@ export class Player extends Entity {
       this.removeComponent(utils.Interval)
     }
 
-    Logger.log('player stopped successfully')
+    Logger.log('player disconnected successfully')
   }
 
-  private async restart() {
-    Logger.log('player restart triggered')
+  private async reconnect() {
+    Logger.log('player reconnect triggered')
 
-    this.stop(true)
-    await this.start()
+    const wasPlaying = this.isPlaying()
 
-    Logger.log('player restarted successfully')
+    this.disconnect(true)
+    await this.connect(this._autoplay || wasPlaying)
+
+    Logger.log('player reconnected successfully')
   }
 
   private async heartbeatPulse(token: string) {
@@ -223,7 +297,7 @@ export class Player extends Entity {
     }
 
     if (!active) {
-      await this.restart()
+      await this.reconnect()
     }
   }
 }
