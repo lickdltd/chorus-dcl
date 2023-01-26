@@ -50,7 +50,10 @@ To use the player add the `Player` component to the entity.
 Player requires two arguments when being constructed:
 
 - `stream`: path of the stream connecting to
-- `parcels`: 
+
+Player can optionally also take the following argument:
+
+- `parcels`: a list of parcel coordinates to activate the player on
 
 #### Basic
 
