@@ -73,12 +73,14 @@ export class Player extends Entity {
   }
 
   private async isActiveInScene(): Promise<boolean> {
-    return new Promise((resolve) => utils.setTimeout(Player.ACTIVATE_INTERVAL, () => {
-      const x: number = Math.floor(Camera.instance.worldPosition.x / 16)
-      const z: number = Math.floor(Camera.instance.worldPosition.z / 16)
+    return new Promise((resolve) =>
+      utils.setTimeout(Player.ACTIVATE_INTERVAL, () => {
+        const x: number = Math.floor(Camera.instance.worldPosition.x / 16)
+        const z: number = Math.floor(Camera.instance.worldPosition.z / 16)
 
-      resolve(this._parcels.indexOf([x, z].join(',')) >= 0)
-    }))
+        resolve(this._parcels.indexOf([x, z].join(',')) >= 0)
+      })
+    )
   }
 
   public activate(): this {
@@ -140,7 +142,7 @@ export class Player extends Entity {
     } else if (this.isConnected()) {
       Logger.log('connect skipped - listener already connected to player')
       return
-    } else if (!await this.isActiveInScene()) {
+    } else if (!(await this.isActiveInScene())) {
       Logger.log('connect skipped - listener is not active in scene')
       return
     }
@@ -174,7 +176,7 @@ export class Player extends Entity {
       if (this._heartbeat) {
         Logger.log('heartbeat starting')
         this.addComponentOrReplace(
-            new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token))
+          new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token))
         )
         Logger.log('heartbeat started successfully')
       } else {
@@ -191,7 +193,7 @@ export class Player extends Entity {
     if (!this.isConnected()) {
       Logger.log('disconnect skipped - not yet connected')
       return
-    } else if (!force && this.isConnected() && await this.isActiveInScene()) {
+    } else if (!force && this.isConnected() && (await this.isActiveInScene())) {
       Logger.log('disconnect skipped - listener connected to and is still active in scene')
       return
     }
@@ -217,16 +219,16 @@ export class Player extends Entity {
 
     const size: Vector3 = new Vector3(16, height, 16)
     const position: Vector3 = new Vector3(
-        (parseInt(parcelSplit[0]) - baseOffset.x) * 16 + 8,
-        0,
-        (parseInt(parcelSplit[1]) - baseOffset.z) * 16 + 8
+      (parseInt(parcelSplit[0]) - baseOffset.x) * 16 + 8,
+      0,
+      (parseInt(parcelSplit[1]) - baseOffset.z) * 16 + 8
     )
 
     box.addComponent(
-        new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
-          onCameraEnter: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.connect()),
-          onCameraExit: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.disconnect())
-        })
+      new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
+        onCameraEnter: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.connect()),
+        onCameraExit: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.disconnect())
+      })
     )
 
     engine.addEntity(box)
