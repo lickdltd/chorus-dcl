@@ -5,6 +5,7 @@
 ```ts
 
 /// <reference types="dcl" />
+/// <reference types="env" />
 
 // @public (undocumented)
 export class Player extends Entity {
@@ -12,15 +13,13 @@ export class Player extends Entity {
     // (undocumented)
     activate(): this;
     // (undocumented)
+    connect(): Promise<void>;
+    // (undocumented)
+    disconnect(force?: boolean): Promise<void>;
+    // (undocumented)
     isConnected(): boolean;
     // (undocumented)
-    isPlaying(): boolean;
-    // (undocumented)
-    pause(): void;
-    // (undocumented)
-    play(): void;
-    // (undocumented)
-    setAutoplay(autoplay: boolean): this;
+    setAutoConnect(autoConnect: boolean): this;
     // (undocumented)
     setHeartbeat(heartbeat: boolean): this;
     // (undocumented)

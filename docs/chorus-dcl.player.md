@@ -22,11 +22,10 @@ export declare class Player extends Entity
 |  Method | Modifiers | Description |
 |  --- | --- | --- |
 |  [activate()](./chorus-dcl.player.activate.md) |  |  |
+|  [connect()](./chorus-dcl.player.connect.md) |  |  |
+|  [disconnect(force)](./chorus-dcl.player.disconnect.md) |  |  |
 |  [isConnected()](./chorus-dcl.player.isconnected.md) |  |  |
-|  [isPlaying()](./chorus-dcl.player.isplaying.md) |  |  |
-|  [pause()](./chorus-dcl.player.pause.md) |  |  |
-|  [play()](./chorus-dcl.player.play.md) |  |  |
-|  [setAutoplay(autoplay)](./chorus-dcl.player.setautoplay.md) |  |  |
+|  [setAutoConnect(autoConnect)](./chorus-dcl.player.setautoconnect.md) |  |  |
 |  [setHeartbeat(heartbeat)](./chorus-dcl.player.setheartbeat.md) |  |  |
 |  [setUrl(url)](./chorus-dcl.player.seturl.md) |  |  |
 |  [setVolume(volume)](./chorus-dcl.player.setvolume.md) |  |  |

@@ -50,10 +50,12 @@ To use the player add the `Player` component to the entity.
 Player requires two arguments when being constructed:
 
 - `stream`: path of the stream connecting to
+- `parcels`: 
 
 #### Basic
 
-This example uses Player to initialise, start and stop the player as well as initiate the heartbeat for the whole scene:
+This example uses Player to initialise, connect and disconnect the player as well as initiate the heartbeat for the
+whole scene:
 
 ```ts
 import * as chorus from '@lickdltd/chorus-dcl'
@@ -61,43 +63,41 @@ import * as chorus from '@lickdltd/chorus-dcl'
 (new chorus.Player('<CHORUS_STREAM_PATH>')).activate()
 ```
 
-#### Target specific parcels
+#### Target specific parcel(s)
 
 This example allows for targeting specific parcels rather than the whole scene:
 
 ```ts
-import * as utils from '@dcl/ecs-scene-utils'
 import * as chorus from '@lickdltd/chorus-dcl'
 
-const parcelBase = ['-150', '150']
-const parcelChorus = ['-149', '150']
+(new chorus.Player('<CHORUS_STREAM_PATH>', ['-150,150'])).activate()
+```
 
-const chorusPlayer = (new chorus.Player('<CHORUS_STREAM_PATH>', [parcelChorus.join(',')]))
-  .setAutoplay(false)
-  .activate()
+#### Target designated area
 
-// use these in custom events/triggers as needed
-// chorusPlayer.play()
-// chorusPlayer.pause()
+This example allows for targeting designated area rather than the whole scene/parcel:
 
-const box = new Entity()
+```ts
+import * as chorus from '@lickdltd/chorus-dcl'
 
-const baseOffset: Vector3 = new Vector3(parseInt(parcelBase[0]), 0, parseInt(parcelBase[1]))
-const size: Vector3 = new Vector3(16, 30, 16)
-const position: Vector3 = new Vector3(
-  (parseInt(parcelChorus[0]) - baseOffset.x) * 16 + 8,
-  0,
-  (parseInt(parcelChorus[1]) - baseOffset.z) * 16 + 8
+const chorusPlayer: chorus.Player = (new chorus.Player('<CHORUS_STREAM_PATH>'))
+   .setAutoConnect(false)
+   .activate()
+
+const playArea: Entity = new Entity()
+
+// update x, y & z accordingly
+const position: Vector3 = new Vector3(0, 0, 0)
+const size: Vector3 = new Vector3(0, 0, 0)
+
+playArea.addComponent(
+   new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
+     onCameraEnter: () => chorusPlayer.connect(),
+     onCameraExit: () => chorusPlayer.disconnect(true)
+   })
 )
 
-box.addComponent(
-  new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
-    onCameraEnter: () => player.play(),
-    onCameraExit: () => player.pause()
-  })
-)
-
-engine.addEntity(box)
+engine.addEntity(playArea)
 ```
 
 #### Change Chorus URL
