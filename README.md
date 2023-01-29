@@ -86,7 +86,6 @@ new chorus.Player('<CHORUS_STREAM_PATH>', { parcels: ['-150,150'] })
 This example allows for targeting designated area rather than the whole scene/parcel:
 
 ```ts
-import * as utils from '@dcl/ecs-scene-utils'
 import * as chorus from '@lickdltd/chorus-dcl'
 
 // update x, y & z accordingly
