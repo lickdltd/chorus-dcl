@@ -53,7 +53,12 @@ Player requires two arguments when being constructed:
 
 Player can optionally also take the following argument:
 
-- `parcels`: a list of parcel coordinates to activate the player on
+- `config`: an object with optional config parameters
+  - `url`: a string to override the player url
+  - `volume`: a number to change the volume of the player
+  - `parcels`: a list of parcels coordinates to activate the player on
+  - `zones`: a list of zone transform objects to activate the player on
+  - `debug`: a boolean to enable debug 
 
 #### Basic
 
@@ -63,7 +68,7 @@ whole scene:
 ```ts
 import * as chorus from '@lickdltd/chorus-dcl'
 
-(new chorus.Player('<CHORUS_STREAM_PATH>')).activate()
+new chorus.Player('<CHORUS_STREAM_PATH>')
 ```
 
 #### Target specific parcel(s)
@@ -73,7 +78,7 @@ This example allows for targeting specific parcels rather than the whole scene:
 ```ts
 import * as chorus from '@lickdltd/chorus-dcl'
 
-(new chorus.Player('<CHORUS_STREAM_PATH>', ['-150,150'])).activate()
+new chorus.Player('<CHORUS_STREAM_PATH>', { parcels: ['-150,150'] })
 ```
 
 #### Target designated area
@@ -81,26 +86,19 @@ import * as chorus from '@lickdltd/chorus-dcl'
 This example allows for targeting designated area rather than the whole scene/parcel:
 
 ```ts
+import * as utils from '@dcl/ecs-scene-utils'
 import * as chorus from '@lickdltd/chorus-dcl'
 
-const chorusPlayer: chorus.Player = (new chorus.Player('<CHORUS_STREAM_PATH>'))
-   .setAutoConnect(false)
-   .activate()
-
-const playArea: Entity = new Entity()
-
 // update x, y & z accordingly
-const position: Vector3 = new Vector3(0, 0, 0)
-const size: Vector3 = new Vector3(0, 0, 0)
+const scale: Vector3 = new Vector3(9.5, 10, 9.5)
+const position: Vector3 = new Vector3(23.5, 0, 8)
 
-playArea.addComponent(
-   new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
-     onCameraEnter: () => chorusPlayer.connect(),
-     onCameraExit: () => chorusPlayer.disconnect(true)
-   })
-)
-
-engine.addEntity(playArea)
+// enabling debug will make the trigger component(s) visible
+// see https://github.com/decentraland/decentraland-ecs-utils#trigger-component for more information
+new chorus.Player('<CHORUS_STREAM_PATH>', {
+   zones: [new Transform({scale, position})],
+   debug: true
+})
 ```
 
 #### Change Chorus URL
@@ -110,7 +108,9 @@ This example allows for changing the URL for the Chorus service:
 ```ts
 import * as chorus from '@lickdltd/chorus-dcl'
 
-(new chorus.Player('<CHORUS_STREAM_PATH>')).setUrl('<CHORUS_URL>').activate()
+new chorus.Player('<CHORUS_STREAM_PATH>', {
+    url: '<CHORUS_URL>'
+})
 ```
 
 ## Contributing

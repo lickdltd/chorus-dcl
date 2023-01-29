@@ -5,27 +5,11 @@
 ```ts
 
 /// <reference types="dcl" />
-/// <reference types="env" />
 
-// @public (undocumented)
+// @beta
 export class Player extends Entity {
-    constructor(stream: string, parcels?: string[]);
-    // (undocumented)
-    activate(): this;
-    // (undocumented)
-    connect(): Promise<void>;
-    // (undocumented)
-    disconnect(force?: boolean): Promise<void>;
-    // (undocumented)
-    isConnected(): boolean;
-    // (undocumented)
-    setAutoConnect(autoConnect: boolean): this;
-    // (undocumented)
-    setHeartbeat(heartbeat: boolean): this;
-    // (undocumented)
-    setUrl(url: string): this;
-    // (undocumented)
-    setVolume(volume: number): this;
+    // Warning: (ae-forgotten-export) The symbol "PlayerConfig" needs to be exported by the entry point index.d.ts
+    constructor(stream: string, config?: PlayerConfig);
 }
 
 // (No @packageDocumentation comment for this package)

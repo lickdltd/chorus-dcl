@@ -4,12 +4,15 @@
 
 ## Player.(constructor)
 
+> This API is provided as a preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
 Constructs a new instance of the `Player` class
 
 <b>Signature:</b>
 
 ```typescript
-constructor(stream: string, parcels?: string[]);
+constructor(stream: string, config?: PlayerConfig);
 ```
 
 ## Parameters
@@ -17,5 +20,5 @@ constructor(stream: string, parcels?: string[]);
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  stream | string |  |
-|  parcels | string\[\] | <i>(Optional)</i> |
+|  config | PlayerConfig | <i>(Optional)</i> |
 

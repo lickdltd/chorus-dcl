@@ -4,6 +4,11 @@
 
 ## Player class
 
+> This API is provided as a preview for developers and may change based on feedback that we receive. Do not use this API in a production environment.
+> 
+
+Chorus player
+
 <b>Signature:</b>
 
 ```typescript
@@ -15,18 +20,5 @@ export declare class Player extends Entity
 
 |  Constructor | Modifiers | Description |
 |  --- | --- | --- |
-|  [(constructor)(stream, parcels)](./chorus-dcl.player._constructor_.md) |  | Constructs a new instance of the <code>Player</code> class |
-
-## Methods
-
-|  Method | Modifiers | Description |
-|  --- | --- | --- |
-|  [activate()](./chorus-dcl.player.activate.md) |  |  |
-|  [connect()](./chorus-dcl.player.connect.md) |  |  |
-|  [disconnect(force)](./chorus-dcl.player.disconnect.md) |  |  |
-|  [isConnected()](./chorus-dcl.player.isconnected.md) |  |  |
-|  [setAutoConnect(autoConnect)](./chorus-dcl.player.setautoconnect.md) |  |  |
-|  [setHeartbeat(heartbeat)](./chorus-dcl.player.setheartbeat.md) |  |  |
-|  [setUrl(url)](./chorus-dcl.player.seturl.md) |  |  |
-|  [setVolume(volume)](./chorus-dcl.player.setvolume.md) |  |  |
+|  [(constructor)(stream, config)](./chorus-dcl.player._constructor_.md) |  | <b><i>(BETA)</i></b> Constructs a new instance of the <code>Player</code> class |
 

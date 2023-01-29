@@ -8,5 +8,5 @@
 
 |  Class | Description |
 |  --- | --- |
-|  [Player](./chorus-dcl.player.md) |  |
+|  [Player](./chorus-dcl.player.md) | <b><i>(BETA)</i></b> Chorus player |
 

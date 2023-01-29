@@ -3,30 +3,42 @@ import { FlatFetchResponse, signedFetch } from '@decentraland/SignedFetch'
 import * as utils from '@dcl/ecs-scene-utils'
 import { Logger } from './logger'
 
+interface PlayerConfig {
+  url?: string
+  volume?: number
+  parcels?: string[]
+  zones?: Transform[]
+  debug?: boolean
+}
+
+/**
+ * Chorus player
+ * @beta
+ */
 export class Player extends Entity {
   private readonly _stream: string
 
-  private _parcels: string[] = []
+  private readonly _url: string
 
-  private _url: string
+  private readonly _volume: number
 
-  private _autoConnect: boolean
+  private readonly _parcels: string[]
 
-  private _volume: number
+  private readonly _zones: Transform[]
 
-  private _heartbeat: boolean
+  private readonly _debug: boolean
 
-  private _activated: boolean
+  private _triggers: Transform[] = []
 
   private static URL_DEFAULT: string = 'https://chorus.lickd.co'
 
-  private static ACTIVATE_INTERVAL: number = 1000
+  private static ACTIVATE_INTERVAL: number = 100
 
-  private static TRIGGER_INTERVAL: number = 100
+  private static IS_USER_ACTIVE_INTERVAL: number = 10
 
   private static HEARTBEAT_INTERVAL: number = 60000
 
-  public constructor(stream: string, parcels: string[] = []) {
+  public constructor(stream: string, config?: PlayerConfig) {
     Logger.log('initialising')
 
     super()
@@ -34,167 +46,178 @@ export class Player extends Entity {
     engine.addEntity(this)
 
     this._stream = stream
-    this._parcels = parcels
 
-    this.setUrl(Player.URL_DEFAULT)
-    this.setAutoConnect(true)
-    this.setVolume(1.0)
-    this.setHeartbeat(true)
+    this._url = config.url ?? Player.URL_DEFAULT
+    this._volume = config.volume ?? 1.0
+    this._parcels = config.parcels ?? []
+    this._zones = config.zones ?? []
+    this._debug = config.debug ?? false
 
-    Logger.log('initialised')
+    this.activate()
+      .then(() => Logger.log('initialised successfully'))
+      .catch(() => Logger.log('initialisation failed'))
   }
 
-  public setUrl(url: string): this {
-    this._url = url
+  private async activate(): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      if (!this.isCameraActive()) {
+        Logger.log('activation waiting - no camera activity yet')
+        utils.setTimeout(Player.ACTIVATE_INTERVAL, () => resolve(this.activate()))
+        return
+      }
 
-    return this
+      Logger.log('activating')
+
+      if (this._zones.length > 0) {
+        this.activateZones()
+      } else {
+        await this.activateParcels()
+      }
+
+      Logger.log('activation successful')
+
+      resolve(true)
+    })
   }
 
-  public setAutoConnect(autoConnect: boolean): this {
-    this._autoConnect = autoConnect
+  private activateZones(): void {
+    Logger.log('activate zones')
 
-    return this
+    this._zones.forEach((zone) => {
+      Logger.log('activating zone', zone)
+      this.createTrigger(zone)
+    })
   }
 
-  public setVolume(volume: number): this {
-    this._volume = volume > 0.0 && volume <= 1.0 ? volume : 1.0
+  private async activateParcels(): Promise<void> {
+    Logger.log('activate parcels')
 
-    return this
+    const scene: SceneParcels = (await getParcel()).land.sceneJsonData.scene
+    const parcels: string[] = this._parcels.length > 0 ? this._parcels : scene.parcels
+
+    const baseSplit: string[] = scene.base.split(',', 2)
+    const baseOffset: Vector3 = new Vector3(parseInt(baseSplit[0]), 0, parseInt(baseSplit[1]))
+    const height: number = Math.round((Math.log(parcels.length + 1) / Math.log(2)) * 20)
+
+    parcels.forEach((parcel) => {
+      Logger.log('activating parcel', parcel)
+
+      const parcelSplit: string[] = parcel.split(',', 2)
+
+      const x: number = (parseInt(parcelSplit[0]) - baseOffset.x) * 16 + 8
+      const y: number = (parseInt(parcelSplit[1]) - baseOffset.z) * 16 + 8
+
+      const position: Vector3 = new Vector3(x, 0.0, y)
+      const scale: Vector3 = new Vector3(16, height, 16)
+
+      this.createTrigger(new Transform({ position, scale }))
+    })
   }
 
-  public setHeartbeat(heartbeat: boolean): this {
-    this._heartbeat = heartbeat
+  private createTrigger(zone: Transform): void {
+    Logger.log('create trigger', zone)
 
-    return this
-  }
+    const playerEntity: Entity = new Entity()
 
-  public isConnected(): boolean {
-    return this.hasComponent(AudioStream) && this.getComponent(AudioStream).playing
-  }
-
-  private async isActiveInScene(): Promise<boolean> {
-    return new Promise((resolve) =>
-      utils.setTimeout(Player.ACTIVATE_INTERVAL, () => {
-        const x: number = Math.floor(Camera.instance.worldPosition.x / 16)
-        const z: number = Math.floor(Camera.instance.worldPosition.z / 16)
-
-        resolve(this._parcels.indexOf([x, z].join(',')) >= 0)
-      })
-    )
-  }
-
-  public activate(): this {
-    Logger.log('activate triggered')
-
-    this._activated = false
-
-    this.addComponent(
-      new utils.Interval(Player.ACTIVATE_INTERVAL, async () => {
-        const x: number = Camera.instance.position.x !== 0 ? Camera.instance.position.x : -1
-        const y: number = Camera.instance.position.y !== 0 ? Camera.instance.position.y : -1
-        const z: number = Camera.instance.position.z !== 0 ? Camera.instance.position.z : -1
-
-        if (x < 0 && y < 0 && z < 0) {
-          Logger.log('activation waiting - no camera activity yet')
-          return
-        }
-
-        this.removeComponent(utils.Interval)
-
-        const scene: SceneParcels = (await getParcel()).land.sceneJsonData.scene
-        if (this._parcels.length <= 0) {
-          this._parcels = scene.parcels
-        }
-
-        this._parcels.forEach((parcel) => {
-          if (scene.parcels.indexOf(parcel) < 0) {
-            this._parcels.splice(this._parcels.indexOf(parcel), 1)
-          }
-        })
-
-        if (this._autoConnect) {
-          const baseSplit: string[] = scene.base.split(',', 2)
-          const baseOffset: Vector3 = new Vector3(parseInt(baseSplit[0]), 0, parseInt(baseSplit[1]))
-          const height: number = Math.round((Math.log(scene.parcels.length + 1) / Math.log(2)) * 20)
-
-          this._parcels.forEach((parcel) => this.activateParcel(baseOffset, height, parcel))
-        }
-
-        this._activated = true
-
-        Logger.log('activated successfully')
+    playerEntity.addComponent(
+      new utils.TriggerComponent(new utils.TriggerBoxShape(zone.scale, zone.position), {
+        onCameraEnter: () => this.connect(),
+        onCameraExit: () => this.disconnect(),
+        enableDebug: this._debug
       })
     )
 
-    return this
+    engine.addEntity(playerEntity)
+
+    this._triggers.push(zone)
   }
 
-  public async connect() {
-    Logger.log('connect triggered')
-
-    if (this._activated === undefined) {
-      Logger.log('connect skipped - activation not triggered')
-      return
-    } else if (!this._activated) {
-      Logger.log('connect on hold - waiting for activation')
-      utils.setTimeout(Player.ACTIVATE_INTERVAL, () => this.connect())
-      return
-    } else if (this.isConnected()) {
-      Logger.log('connect skipped - listener already connected to player')
-      return
-    } else if (!(await this.isActiveInScene())) {
-      Logger.log('connect skipped - listener is not active in scene')
+  private async connect(): Promise<void> {
+    if (this.isConnected()) {
+      Logger.log('connect skipped - already connected')
       return
     }
 
-    Logger.log('connecting to', this._stream)
+    if (!(await this.isUserActive())) {
+      Logger.log('connect skipped - user not active')
+      return
+    }
+
+    Logger.log('connecting to stream', this._stream)
 
     try {
-      const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/create/dcl', {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-        body: JSON.stringify({
-          stream: this._stream
-        })
-      })
+      const token: string = await this.generateToken(this._stream)
 
-      if (response.status !== 200) {
-        throw new Error('session could not be created')
-      }
-
-      const json: any = await JSON.parse(response.text || '{}')
-
-      if (!json.token) {
-        throw new Error('session token not found')
-      }
-
-      this.addComponentOrReplace(new AudioStream(this._url + this._stream + '?token=' + json.token))
+      this.addComponentOrReplace(new AudioStream(this._url + this._stream + '?token=' + token))
       this.getComponent(AudioStream).volume = this._volume
 
-      Logger.log('connected successfully')
+      this.addComponentOrReplace(new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeat(token)))
 
-      if (this._heartbeat) {
-        Logger.log('heartbeat starting')
-        this.addComponentOrReplace(
-          new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeatPulse(json.token))
-        )
-        Logger.log('heartbeat started successfully')
-      } else {
-        Logger.log('heartbeat disabled - this will likely result in listeners getting disconnected')
-      }
+      Logger.log('connected successfully')
     } catch (e) {
       Logger.log('connection failed', e.message)
     }
   }
 
-  public async disconnect(force: boolean = false) {
-    Logger.log('disconnect triggered')
+  private async generateToken(stream: string): Promise<string> {
+    const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/create/dcl', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify({ stream })
+    })
 
+    if (response.status !== 200) {
+      throw new Error('session could not be created')
+    }
+
+    const json: any = await JSON.parse(response.text || '{}')
+
+    if (!json.token) {
+      throw new Error('session token not found')
+    }
+
+    return json.token
+  }
+
+  private async heartbeat(token: string): Promise<void> {
+    Logger.log('heartbeat')
+
+    try {
+      await this.heartbeatPulse(token)
+
+      Logger.log('heartbeat successful')
+    } catch (e) {
+      Logger.log('heartbeat failed', e.message)
+
+      await this.disconnect(true)
+      await this.connect()
+    }
+  }
+
+  private async heartbeatPulse(token: string): Promise<void> {
+    const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/heartbeat/dcl', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify({ token })
+    })
+
+    if (response.status === 404) {
+      throw new Error('heartbeat not found')
+    }
+
+    if (response.status !== 200) {
+      throw new Error('unknown error')
+    }
+  }
+
+  private async disconnect(force: boolean = false): Promise<void> {
     if (!this.isConnected()) {
-      Logger.log('disconnect skipped - not yet connected')
+      Logger.log('disconnect skipped - not connected')
       return
-    } else if (!force && this.isConnected() && (await this.isActiveInScene())) {
-      Logger.log('disconnect skipped - listener connected to and is still active in scene')
+    }
+
+    if (!force && this.isConnected() && (await this.isUserActive())) {
+      Logger.log('disconnect skipped - connected and user still active (and not forced)')
       return
     }
 
@@ -211,69 +234,57 @@ export class Player extends Entity {
     Logger.log('disconnected successfully')
   }
 
-  private activateParcel(baseOffset: Vector3, height: number, parcel: string) {
-    Logger.log('activating parcel', parcel)
+  private isCameraActive(): boolean {
+    const x: number = Camera.instance.position.x !== 0 ? Camera.instance.position.x : -1
+    const y: number = Camera.instance.position.y !== 0 ? Camera.instance.position.y : -1
+    const z: number = Camera.instance.position.z !== 0 ? Camera.instance.position.z : -1
 
-    const parcelSplit: string[] = parcel.split(',', 2)
-    const box: Entity = new Entity()
-
-    const size: Vector3 = new Vector3(16, height, 16)
-    const position: Vector3 = new Vector3(
-      (parseInt(parcelSplit[0]) - baseOffset.x) * 16 + 8,
-      0,
-      (parseInt(parcelSplit[1]) - baseOffset.z) * 16 + 8
-    )
-
-    box.addComponent(
-      new utils.TriggerComponent(new utils.TriggerBoxShape(size, position), {
-        onCameraEnter: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.connect()),
-        onCameraExit: () => utils.setTimeout(Player.TRIGGER_INTERVAL, () => this.disconnect())
-      })
-    )
-
-    engine.addEntity(box)
-
-    Logger.log('activated parcel successfully')
+    return x >= 0 || y >= 0 || z >= 0
   }
 
-  private async reconnect() {
-    Logger.log('reconnect triggered')
+  private isUserActive(attempts: number = 1): Promise<boolean> {
+    return new Promise((resolve) => {
+      const active = this.isUserActiveInTriggers()
+      if (!active && attempts < 3) {
+        utils.setTimeout(Player.IS_USER_ACTIVE_INTERVAL, () => resolve(this.isUserActive(attempts + 1)))
+        return
+      }
 
-    await this.disconnect(true)
-    await this.connect()
-
-    Logger.log('reconnected successfully')
+      resolve(active)
+    })
   }
 
-  private async heartbeatPulse(token: string) {
-    Logger.log('heartbeat pulse triggered')
+  private isUserActiveInTriggers(): boolean {
+    const x: number = Math.round(Camera.instance.feetPosition.x * 100) / 100
+    const y: number = Math.round(Camera.instance.feetPosition.y * 100) / 100
+    const z: number = Math.round(Camera.instance.feetPosition.z * 100) / 100
 
-    let active: boolean
+    let active = false
 
-    try {
-      const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/heartbeat/dcl', {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-        body: JSON.stringify({ token })
-      })
+    this._triggers.forEach((trigger) => {
+      const triggerXMin: number = trigger.position.x - trigger.scale.x / 2
+      const triggerXMax: number = trigger.position.x + trigger.scale.x / 2
 
-      if (response.status === 404) {
-        throw new Error('heartbeat not found')
+      const triggerYMin: number = trigger.position.y
+      const triggerYMax: number = trigger.scale.y
+
+      const triggerZMin: number = trigger.position.z - trigger.scale.z / 2
+      const triggerZMax: number = trigger.position.z + trigger.scale.z / 2
+
+      const insideX: boolean = x >= triggerXMin && x <= triggerXMax
+      const insideY: boolean = y >= triggerYMin && y <= triggerYMax
+      const insideZ: boolean = z >= triggerZMin && z <= triggerZMax
+
+      if (insideX && insideY && insideZ) {
+        active = true
+        return
       }
+    })
 
-      if (response.status !== 200) {
-        throw new Error('unknown error')
-      }
+    return active
+  }
 
-      Logger.log('heartbeat pulsed successfully')
-      active = true
-    } catch (e) {
-      Logger.log('heartbeat failed to pulse', e.message)
-      active = false
-    }
-
-    if (!active) {
-      await this.reconnect()
-    }
+  private isConnected(): boolean {
+    return this.hasComponent(AudioStream)
   }
 }
