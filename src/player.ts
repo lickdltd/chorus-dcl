@@ -262,14 +262,14 @@ export class Player extends Entity {
     let active = false
 
     this._triggers.forEach((trigger) => {
-      const triggerXMin: number = trigger.position.x - (trigger.scale.x / 2)
-      const triggerXMax: number = trigger.position.x + (trigger.scale.x / 2)
+      const triggerXMin: number = trigger.position.x - trigger.scale.x / 2
+      const triggerXMax: number = trigger.position.x + trigger.scale.x / 2
 
-      const triggerYMin: number = trigger.position.y - (trigger.scale.y / 2)
-      const triggerYMax: number = trigger.position.y + (trigger.scale.y / 2)
+      const triggerYMin: number = trigger.position.y - trigger.scale.y / 2
+      const triggerYMax: number = trigger.position.y + trigger.scale.y / 2
 
-      const triggerZMin: number = trigger.position.z - (trigger.scale.z / 2)
-      const triggerZMax: number = trigger.position.z + (trigger.scale.z / 2)
+      const triggerZMin: number = trigger.position.z - trigger.scale.z / 2
+      const triggerZMax: number = trigger.position.z + trigger.scale.z / 2
 
       const insideX: boolean = x >= triggerXMin && x <= triggerXMax
       const insideY: boolean = y >= triggerYMin && y <= triggerYMax
