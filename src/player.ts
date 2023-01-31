@@ -30,6 +30,8 @@ export class Player extends Entity {
 
   private _triggers: Transform[] = []
 
+  private _token: string
+
   private static URL_DEFAULT: string = 'https://chorus.lickd.co'
 
   private static ACTIVATE_INTERVAL: number = 100
@@ -146,12 +148,14 @@ export class Player extends Entity {
     Logger.log('connecting to stream', this._stream)
 
     try {
-      const token: string = await this.generateToken(this._stream)
+      this._token = await this.signIn(this._stream)
 
-      this.addComponentOrReplace(new AudioStream(this._url + this._stream + '?token=' + token))
+      this.addComponentOrReplace(new AudioStream(this._url + this._stream + '?token=' + this._token))
       this.getComponent(AudioStream).volume = this._volume
 
-      this.addComponentOrReplace(new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeat(token)))
+      this.addComponentOrReplace(
+        new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeat(this._token))
+      )
 
       Logger.log('connected successfully')
     } catch (e) {
@@ -159,8 +163,8 @@ export class Player extends Entity {
     }
   }
 
-  private async generateToken(stream: string): Promise<string> {
-    const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/create/dcl', {
+  private async signIn(stream: string): Promise<string> {
+    const response: FlatFetchResponse = await signedFetch(this._url + '/api/listener/sign-in/dcl', {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify({ stream })
@@ -195,7 +199,7 @@ export class Player extends Entity {
   }
 
   private async heartbeatPulse(token: string): Promise<void> {
-    const response: FlatFetchResponse = await signedFetch(this._url + '/api/session/heartbeat/dcl', {
+    const response: FlatFetchResponse = await signedFetch(this._url + '/api/listener/heartbeat/dcl', {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify({ token })
@@ -223,6 +227,10 @@ export class Player extends Entity {
 
     Logger.log('disconnecting from', this._stream)
 
+    if (this._token !== undefined) {
+      await this.signOut(this._token)
+    }
+
     if (this.hasComponent(AudioStream)) {
       this.removeComponent(AudioStream)
     }
@@ -232,6 +240,16 @@ export class Player extends Entity {
     }
 
     Logger.log('disconnected successfully')
+  }
+
+  private async signOut(token: string) {
+    await signedFetch(this._url + '/api/listener/sign-out/dcl', {
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify({ token })
+    })
+
+    this._token = undefined
   }
 
   private isCameraActive(): boolean {
