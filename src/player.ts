@@ -209,7 +209,7 @@ export class Player extends Entity {
       throw new Error('heartbeat not found')
     }
 
-    if (response.status !== 200) {
+    if (response.status !== 204) {
       throw new Error('unknown error')
     }
   }
