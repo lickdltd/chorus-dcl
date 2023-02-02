@@ -170,7 +170,7 @@ export class Player extends Entity {
       body: JSON.stringify({ stream })
     })
 
-    if (response.status !== 200) {
+    if (!response.ok) {
       throw new Error('session could not be created')
     }
 
@@ -209,7 +209,7 @@ export class Player extends Entity {
       throw new Error('heartbeat not found')
     }
 
-    if (response.status !== 204) {
+    if (!response.ok) {
       throw new Error('unknown error')
     }
   }
