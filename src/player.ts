@@ -40,7 +40,7 @@ export class Player extends Entity {
 
   private static HEARTBEAT_INTERVAL: number = 60000
 
-  public constructor(stream: string, config?: PlayerConfig) {
+  public constructor(stream: string, config: PlayerConfig = {}) {
     Logger.log('initialising')
 
     super()
