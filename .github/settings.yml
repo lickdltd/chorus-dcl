@@ -6,7 +6,7 @@ repository:
   homepage: https://github.com/lickdltd/chorus-dcl
   topics: lickd, chorus, dcl, decentraland
   private: false
-  has_issues: false
+  has_issues: true
   has_projects: false
   has_wiki: false
   has_downloads: false
