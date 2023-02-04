@@ -76,10 +76,10 @@ export class Player extends Entity {
       return
     }
 
-    if (volume <= 0.00) {
+    if (volume <= 0.0) {
       volume = 0.01
-    } else if (volume >= 1.00) {
-      volume = 1.00
+    } else if (volume >= 1.0) {
+      volume = 1.0
     }
 
     Logger.log('setting volume to', volume)
