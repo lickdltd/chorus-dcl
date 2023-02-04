@@ -22,3 +22,9 @@ export declare class Player extends Entity
 |  --- | --- | --- |
 |  [(constructor)(stream, config)](./chorus-dcl.player._constructor_.md) |  | <b><i>(BETA)</i></b> Constructs a new instance of the <code>Player</code> class |
 
+## Methods
+
+|  Method | Modifiers | Description |
+|  --- | --- | --- |
+|  [setVolume(volume)](./chorus-dcl.player.setvolume.md) |  | <b><i>(BETA)</i></b> |
+

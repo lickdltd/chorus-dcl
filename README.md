@@ -121,6 +121,52 @@ new chorus.Player('<CHORUS_STREAM_PATH>', {
 })
 ```
 
+### Change volume
+
+This example increases and decreases the volume of the stream based on how close you are to a box:
+
+```ts
+import * as utils from '@dcl/ecs-scene-utils'
+import * as chorus from '@lickdltd/chorus-dcl'
+
+const position: Vector3 = new Vector3(16, 0, 16)
+const minVolume: number = 0.05
+const maxVolume: number = 1.0
+
+const chorusPlayer: chorus.Player = new chorus.Player('<CHORUS_STREAM_PATH>', { volume: minVolume })
+
+const box: Entity = new Entity()
+
+box.addComponent(new BoxShape())
+box.addComponent(new Transform({ position }))
+
+engine.addEntity(box)
+
+const max: number = 32
+
+let previousVolume: number = minVolume
+
+for (let i = max; i >= 6; i -= 2) {
+    const scale: Vector3 = new Vector3(i, 20, i)
+
+    const volumeEntity: Entity = new Entity()
+
+    const enterVolume: number = maxVolume - ((100 / max) * i) / 100
+    const exitVolume: number = previousVolume
+
+    volumeEntity.addComponent(
+        new utils.TriggerComponent(new utils.TriggerBoxShape(scale, position), {
+            onCameraEnter: () => chorusPlayer.setVolume(enterVolume),
+            onCameraExit: () => chorusPlayer.setVolume(exitVolume)
+        })
+    )
+
+    previousVolume = enterVolume
+
+    engine.addEntity(volumeEntity)
+}
+```
+
 #### Change Chorus URL
 
 This example allows for changing the URL for the Chorus service:

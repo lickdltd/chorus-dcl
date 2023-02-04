@@ -70,6 +70,23 @@ export class Player extends Entity {
       .catch(() => Logger.log('initialisation failed'))
   }
 
+  public setVolume(volume: number): void {
+    if (!this.isConnected()) {
+      Logger.log('set volume skipped - not connected')
+      return
+    }
+
+    if (volume <= 0.00) {
+      volume = 0.01
+    } else if (volume >= 1.00) {
+      volume = 1.00
+    }
+
+    Logger.log('setting volume to', volume)
+
+    this.getComponent(AudioStream).volume = volume
+  }
+
   private async activate(): Promise<boolean> {
     return new Promise(async (resolve) => {
       if (!this.isCameraActive()) {

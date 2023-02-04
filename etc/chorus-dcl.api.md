@@ -5,11 +5,14 @@
 ```ts
 
 /// <reference types="dcl" />
+/// <reference types="env" />
 
 // @beta
 export class Player extends Entity {
     // Warning: (ae-forgotten-export) The symbol "PlayerConfig" needs to be exported by the entry point index.d.ts
     constructor(stream: string, config?: PlayerConfig);
+    // (undocumented)
+    setVolume(volume: number): void;
 }
 
 // (No @packageDocumentation comment for this package)
