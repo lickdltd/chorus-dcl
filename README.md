@@ -100,6 +100,27 @@ new chorus.Player('<CHORUS_STREAM_PATH>', {
 })
 ```
 
+### Set schedule
+
+This example allows for only connecting after a scheduled date/time:
+
+```ts
+import * as chorus from '@lickdltd/chorus-dcl'
+
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#examples
+// const dateTimeStart = new Date('0000-00-00T00:00:00')
+const dateTimeStart = new Date()
+
+// this is just an example and not likely to be a real scenario
+dateTime.setMinutes(dateTime.getMinutes() + 1)
+
+new chorus.Player('<CHORUS_STREAM_PATH>', { 
+    schedule: { 
+        start: dateTimeStart
+    }
+})
+```
+
 #### Change Chorus URL
 
 This example allows for changing the URL for the Chorus service:

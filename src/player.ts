@@ -8,7 +8,12 @@ interface PlayerConfig {
   volume?: number
   parcels?: string[]
   zones?: Transform[]
+  schedule?: PlayerConfigSchedule
   debug?: boolean
+}
+
+interface PlayerConfigSchedule {
+  start: Date
 }
 
 /**
@@ -26,6 +31,8 @@ export class Player extends Entity {
 
   private readonly _zones: Transform[]
 
+  private readonly _schedule: PlayerConfigSchedule
+
   private readonly _debug: boolean
 
   private _triggers: Transform[] = []
@@ -35,6 +42,8 @@ export class Player extends Entity {
   private static URL_DEFAULT: string = 'https://chorus.lickd.co'
 
   private static ACTIVATE_INTERVAL: number = 100
+
+  private static SCHEDULE_INTERVAL: number = 60000
 
   private static IS_USER_ACTIVE_INTERVAL: number = 10
 
@@ -53,6 +62,7 @@ export class Player extends Entity {
     this._volume = config.volume ?? 1.0
     this._parcels = config.parcels ?? []
     this._zones = config.zones ?? []
+    this._schedule = config.schedule
     this._debug = config.debug ?? false
 
     this.activate()
@@ -142,6 +152,12 @@ export class Player extends Entity {
 
     if (!(await this.isUserActive())) {
       Logger.log('connect skipped - user not active')
+      return
+    }
+
+    if (this._schedule?.start instanceof Date && this._schedule.start > new Date()) {
+      Logger.log('connect waiting - schedule start active', this._schedule.start.toISOString())
+      utils.setTimeout(Player.SCHEDULE_INTERVAL, () => this.connect())
       return
     }
 
