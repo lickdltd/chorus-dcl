@@ -37,6 +37,8 @@ export class Player extends Entity {
 
   private _triggers: Transform[] = []
 
+  private _connected: boolean = false
+
   private _token: string
 
   private static URL_DEFAULT: string = 'https://chorus.lickd.co'
@@ -180,8 +182,15 @@ export class Player extends Entity {
 
     Logger.log('connecting to stream', this._stream)
 
+    this._connected = true
+
     try {
       this._token = await this.signIn(this._stream)
+
+      if (!this._connected) {
+        Logger.log('connect discarded - user has disconnected')
+        return
+      }
 
       this.addComponentOrReplace(new AudioStream(this._url + this._stream + '?token=' + this._token))
       this.getComponent(AudioStream).volume = this._volume
@@ -267,6 +276,8 @@ export class Player extends Entity {
     if (this.hasComponent(utils.Interval)) {
       this.removeComponent(utils.Interval)
     }
+
+    this._connected = false
 
     if (this._token !== undefined) {
       this.signOut(this._token)
