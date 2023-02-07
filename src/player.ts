@@ -188,18 +188,22 @@ export class Player extends Entity {
       this._token = await this.signIn(this._stream)
 
       if (!this._connected) {
-        Logger.log('connect discarded - user has disconnected')
+        Logger.log('connection discarded - user has disconnected while retrieving token')
+        await this.disconnect(true)
         return
       }
 
       this.addComponentOrReplace(new AudioStream(this._url + this._stream + '?token=' + this._token))
       this.getComponent(AudioStream).volume = this._volume
 
-      this.addComponentOrReplace(
-        new utils.Interval(Player.HEARTBEAT_INTERVAL, async () => await this.heartbeat(this._token))
-      )
+      this.addComponentOrReplace(new utils.Interval(Player.HEARTBEAT_INTERVAL, () => this.heartbeat(this._token)))
 
       Logger.log('connected successfully')
+
+      if (!this._connected) {
+        Logger.log('connection stream discarded - user has disconnected while connecting')
+        await this.disconnect(true)
+      }
     } catch (e) {
       Logger.log('connection failed', e.message)
     }
@@ -347,6 +351,6 @@ export class Player extends Entity {
   }
 
   private isConnected(): boolean {
-    return this.hasComponent(AudioStream)
+    return this.hasComponent(AudioStream) || this._connected
   }
 }
