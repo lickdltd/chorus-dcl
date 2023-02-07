@@ -260,10 +260,6 @@ export class Player extends Entity {
 
     Logger.log('disconnecting from', this._stream)
 
-    if (this._token !== undefined) {
-      await this.signOut(this._token)
-    }
-
     if (this.hasComponent(AudioStream)) {
       this.removeComponent(AudioStream)
     }
@@ -272,15 +268,19 @@ export class Player extends Entity {
       this.removeComponent(utils.Interval)
     }
 
+    if (this._token !== undefined) {
+      this.signOut(this._token)
+    }
+
     Logger.log('disconnected successfully')
   }
 
-  private async signOut(token: string) {
-    await signedFetch(this._url + '/api/listener/sign-out/dcl', {
+  private signOut(token: string) {
+    signedFetch(this._url + '/api/listener/sign-out/dcl', {
       headers: { 'Content-Type': 'application/json' },
       method: 'POST',
       body: JSON.stringify({ token })
-    })
+    }).catch((e) => Logger.log('sign out failed', e))
 
     this._token = undefined
   }
