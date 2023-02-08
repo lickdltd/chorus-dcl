@@ -207,6 +207,7 @@ export class Player extends Entity {
       Logger.log('connected successfully')
     } catch (e) {
       Logger.log('connection failed', e.message)
+      this.reset()
     }
   }
 
