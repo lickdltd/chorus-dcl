@@ -189,7 +189,7 @@ export class Player extends Entity {
 
       if (!this._connected) {
         Logger.log('connection discarded - user has disconnected while retrieving token')
-        await this.disconnect(true)
+        this.reset()
         return
       }
 
@@ -198,12 +198,13 @@ export class Player extends Entity {
 
       this.addComponentOrReplace(new utils.Interval(Player.HEARTBEAT_INTERVAL, () => this.heartbeat(this._token)))
 
-      Logger.log('connected successfully')
-
       if (!this._connected) {
         Logger.log('connection stream discarded - user has disconnected while connecting')
-        await this.disconnect(true)
+        this.reset()
+        return
       }
+
+      Logger.log('connected successfully')
     } catch (e) {
       Logger.log('connection failed', e.message)
     }
@@ -239,7 +240,7 @@ export class Player extends Entity {
     } catch (e) {
       Logger.log('heartbeat failed', e.message)
 
-      await this.disconnect(true)
+      this.reset()
       await this.connect()
     }
   }
@@ -260,18 +261,23 @@ export class Player extends Entity {
     }
   }
 
-  private async disconnect(force: boolean = false): Promise<void> {
-    if (!this.isConnected()) {
-      Logger.log('disconnect skipped - not connected')
-      return
-    }
-
-    if (!force && this.isConnected() && (await this.isUserActive())) {
+  private async disconnect(): Promise<void> {
+    if (this.isConnected() && (await this.isUserActive())) {
       Logger.log('disconnect skipped - connected and user still active (and not forced)')
       return
     }
 
     Logger.log('disconnecting from', this._stream)
+
+    this.reset()
+
+    Logger.log('disconnected successfully')
+  }
+
+  private reset(): void {
+    Logger.log('resetting player')
+
+    this._connected = false
 
     if (this.hasComponent(AudioStream)) {
       this.removeComponent(AudioStream)
@@ -281,21 +287,19 @@ export class Player extends Entity {
       this.removeComponent(utils.Interval)
     }
 
-    this._connected = false
+    this.signOut()
 
-    if (this._token !== undefined) {
-      this.signOut(this._token)
-    }
-
-    Logger.log('disconnected successfully')
+    Logger.log('resetting player successful')
   }
 
-  private signOut(token: string) {
-    signedFetch(this._url + '/api/listener/sign-out/dcl', {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify({ token })
-    }).catch((e) => Logger.log('sign out failed', e))
+  private signOut(): void {
+    if (this._token !== undefined) {
+      signedFetch(this._url + '/api/listener/sign-out/dcl', {
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        body: JSON.stringify({ token: this._token })
+      }).catch((e) => Logger.log('sign out failed', e))
+    }
 
     this._token = undefined
   }
@@ -351,6 +355,6 @@ export class Player extends Entity {
   }
 
   private isConnected(): boolean {
-    return this.hasComponent(AudioStream) || this._connected
+    return this.hasComponent(AudioStream)
   }
 }
