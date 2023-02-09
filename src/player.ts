@@ -173,7 +173,7 @@ export class Player extends Entity {
       return
     }
 
-    if (!this.isUserActive(Player.IS_USER_ACTIVE_LEEWAY_IN)) {
+    if (!this.isUserActive(Player.IS_USER_ACTIVE_LEEWAY_IN, true)) {
       Logger.log('connect skipped - user not active')
       return
     }
@@ -317,30 +317,45 @@ export class Player extends Entity {
     return x >= 0 || y >= 0 || z >= 0
   }
 
-  private isUserActive(leeway: number): boolean {
+  private isUserActive(leeway: number, includePlayerHeight: boolean = false): boolean {
+    Logger.log('isUserActive', { leeway, includePlayerHeight })
+
     const x: number = Math.round(Camera.instance.feetPosition.x * 100) / 100
     const y: number = Math.round(Camera.instance.feetPosition.y * 100) / 100
     const z: number = Math.round(Camera.instance.feetPosition.z * 100) / 100
 
+    Logger.log({ x, y, z })
+
     let active = false
 
-    this._triggers.forEach((trigger) => {
-      const triggerXMin: number = trigger.position.x - trigger.scale.x / 2 - leeway
-      const triggerXMax: number = trigger.position.x + trigger.scale.x / 2 + leeway
+    this._triggers.some((trigger) => {
+      const triggerXMin: number = trigger.position.x - trigger.scale.x / 2
+      const triggerXMinLeeway: number = triggerXMin - leeway
 
-      const triggerYMin: number = trigger.position.y - trigger.scale.y / 2 - leeway
-      const triggerYMax: number = trigger.position.y + trigger.scale.y / 2 + leeway
+      const triggerXMax: number = trigger.position.x + trigger.scale.x / 2
+      const triggerXMaxLeeway: number = triggerXMax + leeway
 
-      const triggerZMin: number = trigger.position.z - trigger.scale.z / 2 - leeway
-      const triggerZMax: number = trigger.position.z + trigger.scale.z / 2 + leeway
+      const triggerYMin: number = trigger.position.y - trigger.scale.y / 2
+      const triggerYMinLeeway: number = triggerYMin - leeway - (includePlayerHeight ? 4 : 0)
 
-      const insideX: boolean = x >= triggerXMin && x <= triggerXMax
-      const insideY: boolean = y >= triggerYMin && y <= triggerYMax
-      const insideZ: boolean = z >= triggerZMin && z <= triggerZMax
+      const triggerYMax: number = trigger.position.y + trigger.scale.y / 2
+      const triggerYMaxLeeway: number = triggerYMax + leeway
+
+      const triggerZMin: number = trigger.position.z - trigger.scale.z / 2
+      const triggerZMinLeeway: number = triggerZMin - leeway
+
+      const triggerZMax: number = trigger.position.z + trigger.scale.z / 2
+      const triggerZMaxLeeway: number = triggerZMax + leeway
+
+      const insideX: boolean = x >= triggerXMinLeeway && x <= triggerXMaxLeeway
+      const insideY: boolean = y >= triggerYMinLeeway && y <= triggerYMaxLeeway
+      const insideZ: boolean = z >= triggerZMinLeeway && z <= triggerZMaxLeeway
+
+      Logger.log({ insideX, insideY, insideZ })
 
       if (insideX && insideY && insideZ) {
         active = true
-        return
+        return true
       }
     })
 
