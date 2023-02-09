@@ -49,6 +49,10 @@ export class Player extends Entity {
 
   private static IS_USER_ACTIVE_INTERVAL: number = 10
 
+  private static IS_USER_ACTIVE_LEEWAY_IN: number = 1.0
+
+  private static IS_USER_ACTIVE_LEEWAY_OUT: number = -0.5
+
   private static HEARTBEAT_INTERVAL: number = 60000
 
   public constructor(stream: string, config: PlayerConfig = {}) {
@@ -169,7 +173,7 @@ export class Player extends Entity {
       return
     }
 
-    if (!(await this.isUserActive())) {
+    if (!this.isUserActive(Player.IS_USER_ACTIVE_LEEWAY_IN)) {
       Logger.log('connect skipped - user not active')
       return
     }
@@ -262,8 +266,8 @@ export class Player extends Entity {
     }
   }
 
-  private async disconnect(): Promise<void> {
-    if (this.isConnected() && (await this.isUserActive())) {
+  private disconnect(): void {
+    if (this.isConnected() && this.isUserActive(Player.IS_USER_ACTIVE_LEEWAY_OUT)) {
       Logger.log('disconnect skipped - connected and user still active (and not forced)')
       return
     }
@@ -313,19 +317,7 @@ export class Player extends Entity {
     return x >= 0 || y >= 0 || z >= 0
   }
 
-  private isUserActive(attempts: number = 1): Promise<boolean> {
-    return new Promise((resolve) => {
-      const active = this.isUserActiveInTriggers()
-      if (!active && attempts < 3) {
-        utils.setTimeout(Player.IS_USER_ACTIVE_INTERVAL, () => resolve(this.isUserActive(attempts + 1)))
-        return
-      }
-
-      resolve(active)
-    })
-  }
-
-  private isUserActiveInTriggers(): boolean {
+  private isUserActive(leeway: number): boolean {
     const x: number = Math.round(Camera.instance.feetPosition.x * 100) / 100
     const y: number = Math.round(Camera.instance.feetPosition.y * 100) / 100
     const z: number = Math.round(Camera.instance.feetPosition.z * 100) / 100
@@ -333,14 +325,14 @@ export class Player extends Entity {
     let active = false
 
     this._triggers.forEach((trigger) => {
-      const triggerXMin: number = trigger.position.x - trigger.scale.x / 2
-      const triggerXMax: number = trigger.position.x + trigger.scale.x / 2
+      const triggerXMin: number = trigger.position.x - trigger.scale.x / 2 - leeway
+      const triggerXMax: number = trigger.position.x + trigger.scale.x / 2 + leeway
 
-      const triggerYMin: number = trigger.position.y - trigger.scale.y / 2
-      const triggerYMax: number = trigger.position.y + trigger.scale.y / 2
+      const triggerYMin: number = trigger.position.y - trigger.scale.y / 2 - leeway
+      const triggerYMax: number = trigger.position.y + trigger.scale.y / 2 + leeway
 
-      const triggerZMin: number = trigger.position.z - trigger.scale.z / 2
-      const triggerZMax: number = trigger.position.z + trigger.scale.z / 2
+      const triggerZMin: number = trigger.position.z - trigger.scale.z / 2 - leeway
+      const triggerZMax: number = trigger.position.z + trigger.scale.z / 2 + leeway
 
       const insideX: boolean = x >= triggerXMin && x <= triggerXMax
       const insideY: boolean = y >= triggerYMin && y <= triggerYMax
