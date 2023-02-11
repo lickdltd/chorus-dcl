@@ -8,5 +8,5 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [@lickdltd/chorus-dcl](./chorus-dcl.md) |  |
+|  [@lickd/chorus-dcl](./chorus-dcl.md) |  |
 

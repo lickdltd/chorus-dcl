@@ -21,23 +21,23 @@ Lickd Chorus DCL includes helpful solutions for integration with Lickd's Chorus 
 
 To use any of the helpers provided by this library:
 
-1. [Setup GitHub npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry#installing-a-package)
-
-2. Install it as an npm package. Run this command in your scene's project folder:
+1. Install it as an `npm` package. Run this command in your scene's project folder:
 
    ```
-   npm install @dcl/ecs-scene-utils @lickdltd/chorus-dcl -B
+   npm install @dcl/ecs-scene-utils @lickd/chorus-dcl -B
    ```
 
    > Note: This command also installs the latest version of the @dcl/ecs-scene-utils library, that are dependencies of the chorus-dcl library
 
-3. Run `dcl start` or `dcl build` so the dependencies are correctly installed
+2. Run `dcl start` or `dcl build` so the dependencies are correctly installed
 
-4. Add this line at the start of your `game.ts` file, or any other TypeScript files that require it:
+3. Add this line at the start of your `game.ts` file, or any other TypeScript files that require it:
 
    ```ts
-   import * as chorus from '@lickdltd/chorus-dcl'
+   import * as chorus from '@lickd/chorus-dcl'
    ```
+
+4. In your TypeScript file, write `chorus.` and let the suggestions of your IDE show the available helpers.
 
 5. Add `USE_FETCH` to `requiredPermissions` list in your `scene.json` file
 
@@ -66,7 +66,7 @@ This example uses Player to initialise, connect and disconnect the player as wel
 whole scene:
 
 ```ts
-import * as chorus from '@lickdltd/chorus-dcl'
+import * as chorus from '@lickd/chorus-dcl'
 
 new chorus.Player('<CHORUS_STREAM_PATH>')
 ```
@@ -76,7 +76,7 @@ new chorus.Player('<CHORUS_STREAM_PATH>')
 This example allows for targeting specific parcels rather than the whole scene:
 
 ```ts
-import * as chorus from '@lickdltd/chorus-dcl'
+import * as chorus from '@lickd/chorus-dcl'
 
 new chorus.Player('<CHORUS_STREAM_PATH>', { parcels: ['-150,150'] })
 ```
@@ -86,7 +86,7 @@ new chorus.Player('<CHORUS_STREAM_PATH>', { parcels: ['-150,150'] })
 This example allows for targeting designated area rather than the whole scene/parcel:
 
 ```ts
-import * as chorus from '@lickdltd/chorus-dcl'
+import * as chorus from '@lickd/chorus-dcl'
 
 // update x, y & z accordingly
 const scale: Vector3 = new Vector3(9.5, 10, 9.5)
@@ -105,7 +105,7 @@ new chorus.Player('<CHORUS_STREAM_PATH>', {
 This example allows for only connecting after a scheduled date/time:
 
 ```ts
-import * as chorus from '@lickdltd/chorus-dcl'
+import * as chorus from '@lickd/chorus-dcl'
 
 // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#examples
 // const dateTimeStart = new Date('0000-00-00T00:00:00')
@@ -127,7 +127,7 @@ This example increases and decreases the volume of the stream based on how close
 
 ```ts
 import * as utils from '@dcl/ecs-scene-utils'
-import * as chorus from '@lickdltd/chorus-dcl'
+import * as chorus from '@lickd/chorus-dcl'
 
 const position: Vector3 = new Vector3(16, 0, 16)
 const minVolume: number = 0.05
@@ -172,7 +172,7 @@ for (let i = max; i >= 6; i -= 2) {
 This example allows for changing the URL for the Chorus service:
 
 ```ts
-import * as chorus from '@lickdltd/chorus-dcl'
+import * as chorus from '@lickd/chorus-dcl'
 
 new chorus.Player('<CHORUS_STREAM_PATH>', {
     url: '<CHORUS_URL>'
@@ -184,9 +184,9 @@ new chorus.Player('<CHORUS_STREAM_PATH>', {
 In order to test changes made to this repository in active scenes, do the following:
 
 1. Run `npm link` on this repository
-2. On the scene directory, after you installed the dependency, run `npm link @lickdltd/chorus-dcl`
+2. On the scene directory, after you installed the dependency, run `npm link @lickd/chorus-dcl`
 
-> Note: When done testing, run `npm unlink --no-save @lickdltd/chorus-dcl` on your scene, so that it no longer depends on your local copy of the library.
+> Note: When done testing, run `npm unlink --no-save @lickd/chorus-dcl` on your scene, so that it no longer depends on your local copy of the library.
 
 For more information, see Decentraland docs for [fast iterations](https://docs.decentraland.org/creator/development-guide/create-libraries/#fast-iterations). 
 
