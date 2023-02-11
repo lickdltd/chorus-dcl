@@ -29,7 +29,7 @@ To use any of the helpers provided by this library:
 
    > Note: This command also installs the latest version of the @dcl/ecs-scene-utils library, that are dependencies of the chorus-dcl library
 
-2. Run `dcl start` or `dcl build` so the dependencies are correctly installed
+2. Run `dcl start` or `dcl build` so the dependencies are correctly installed.
 
 3. Add this line at the start of your `game.ts` file, or any other TypeScript files that require it:
 
@@ -38,8 +38,6 @@ To use any of the helpers provided by this library:
    ```
 
 4. In your TypeScript file, write `chorus.` and let the suggestions of your IDE show the available helpers.
-
-5. Add `USE_FETCH` to `requiredPermissions` list in your `scene.json` file
 
 ## Usage
 
@@ -55,9 +53,12 @@ Player can optionally also take the following argument:
 
 - `config`: an object with optional config parameters
   - `url`: a string to override the player url
-  - `volume`: a number to change the volume of the player
+  - `volume`: a number to change the initial volume of the player when connecting
   - `parcels`: a list of parcels coordinates to activate the player on
   - `zones`: a list of zone transform objects to activate the player on
+  - `schedule`: 
+    - `start`: a date/time (utc) for when players should get connected
+    - `end`: a date/time (utc) for when players should get disconnected
   - `debug`: a boolean to enable debug 
 
 #### Basic
@@ -109,14 +110,18 @@ import * as chorus from '@lickd/chorus-dcl'
 
 // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#examples
 // const dateTimeStart = new Date('0000-00-00T00:00:00')
+// const dateTimeEnd = new Date('0000-00-00T00:00:00')
 const dateTimeStart = new Date()
+const dateTimeEnd = new Date()
 
-// this is just an example and not likely to be a real scenario
-dateTime.setMinutes(dateTime.getMinutes() + 1)
+// these are just an examples and not likely to be a real scenario
+dateTimeStart.setMinutes(dateTime.getMinutes() + 1)
+dateTimeEnd.setMinutes(dateTime.getMinutes() + 10)
 
 new chorus.Player('<CHORUS_STREAM_PATH>', { 
     schedule: { 
-        start: dateTimeStart
+        start: dateTimeStart,
+        end: dateTimeEnd // optional
     }
 })
 ```
