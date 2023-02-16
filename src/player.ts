@@ -167,6 +167,12 @@ export class Player extends Entity {
   }
 
   private async connect(): Promise<void> {
+    if (this._schedule?.start instanceof Date && this._schedule.start >= new Date()) {
+      Logger.log('connect waiting - schedule start set', this._schedule.start.toISOString())
+      utils.setTimeout(Player.SCHEDULE_INTERVAL, () => this.connect())
+      return
+    }
+
     if (this.isConnected()) {
       Logger.log('connect skipped - already connected')
       return
@@ -174,12 +180,6 @@ export class Player extends Entity {
 
     if (!this.isUserActive(Player.IS_USER_ACTIVE_LEEWAY_IN, true)) {
       Logger.log('connect skipped - user not active')
-      return
-    }
-
-    if (this._schedule?.start instanceof Date && this._schedule.start >= new Date()) {
-      Logger.log('connect waiting - schedule start set', this._schedule.start.toISOString())
-      utils.setTimeout(Player.SCHEDULE_INTERVAL, () => this.connect())
       return
     }
 
@@ -235,13 +235,13 @@ export class Player extends Entity {
   }
 
   private async heartbeat(token: string): Promise<void> {
-    Logger.log('heartbeat')
-
     if (this._schedule?.end instanceof Date && this._schedule.end <= new Date()) {
       Logger.log('heartbeat skipped - schedule end set', this._schedule.end.toISOString())
       this.reset()
       return
     }
+
+    Logger.log('heartbeat')
 
     try {
       await this.heartbeatPulse(token)
