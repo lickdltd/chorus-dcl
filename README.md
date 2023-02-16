@@ -9,6 +9,7 @@
 
 * [Details](#details)
 * [Install](#install)
+* [Upgrade](#upgrade)
 * [Usage](#usage)
 * [Contributing](#contributing)
 * [Copyright info](#copyright-info)
@@ -23,7 +24,7 @@ To use any of the helpers provided by this library:
 
 1. Install it as an `npm` package. Run this command in your scene's project folder:
 
-   ```
+   ```shell
    npm install @dcl/ecs-scene-utils @lickd/chorus-dcl -B
    ```
 
@@ -38,6 +39,29 @@ To use any of the helpers provided by this library:
    ```
 
 4. In your TypeScript file, write `chorus.` and let the suggestions of your IDE show the available helpers.
+
+## Upgrade
+
+To upgrade this library, please run the following:
+
+```shell
+npm install @lickd/chorus-dcl@latest
+```
+
+Once an upgrade has taken place it has been known to see the following error triggered in the console when trying to connect:
+
+```shell
+[lickd-chorus] connection failed Cannot read properties of null (reading 'signedFetch')
+```
+
+If this does happen then please follow these steps:
+
+```shell
+npm uninstall @lickd/chorus-dcl -B
+npm install @lickd/chorus-dcl -B
+```
+
+This will remove all references to this library and reinstall it.
 
 ## Usage
 
