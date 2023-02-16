@@ -173,6 +173,11 @@ export class Player extends Entity {
       return
     }
 
+    if (this._schedule?.end instanceof Date && this._schedule.end <= new Date()) {
+      Logger.log('connect skipped - schedule end set', this._schedule.end.toISOString())
+      return
+    }
+
     if (this.isConnected()) {
       Logger.log('connect skipped - already connected')
       return
