@@ -44,6 +44,8 @@ export class Player extends Entity {
 
   private static URL_DEFAULT: string = 'https://chorus.lickd.co'
 
+  private static API_REQUEST_TIMEOUT: number = 5000
+
   private static ACTIVATE_INTERVAL: number = 100
 
   private static SCHEDULE_INTERVAL: number = 60000
@@ -220,11 +222,7 @@ export class Player extends Entity {
   }
 
   private async signIn(stream: string): Promise<string> {
-    const response: FlatFetchResponse = await signedFetch(this._url + '/api/listener/sign-in/dcl', {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify({ stream })
-    })
+    const response = await this.apiPostRequest('/listener/sign-in/dcl', JSON.stringify({ stream }))
 
     if (!response.ok) {
       throw new Error('session could not be created')
@@ -261,11 +259,7 @@ export class Player extends Entity {
   }
 
   private async heartbeatPulse(token: string): Promise<void> {
-    const response: FlatFetchResponse = await signedFetch(this._url + '/api/listener/heartbeat/dcl', {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify({ token })
-    })
+    const response = await this.apiPostRequest('/listener/heartbeat/dcl', JSON.stringify({ token }))
 
     if (response.status === 404) {
       throw new Error('heartbeat not found')
@@ -309,11 +303,9 @@ export class Player extends Entity {
 
   private signOut(): void {
     if (this._token !== undefined) {
-      signedFetch(this._url + '/api/listener/sign-out/dcl', {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'POST',
-        body: JSON.stringify({ token: this._token })
-      }).catch((e) => Logger.log('sign out failed', e))
+      this.apiPostRequest('/listener/sign-out/dcl', JSON.stringify({ token: this._token })).catch((e) =>
+        Logger.log('sign out failed', e)
+      )
     }
 
     this._token = undefined
@@ -374,5 +366,18 @@ export class Player extends Entity {
 
   private isConnected(): boolean {
     return this.hasComponent(AudioStream)
+  }
+
+  private apiPostRequest(endpoint: string, body?: string): Promise<FlatFetchResponse> {
+    const url = this._url + '/api' + endpoint
+
+    Logger.log('posting api request to', url, 'with', Player.API_REQUEST_TIMEOUT / 1000, 'second timeout')
+
+    return signedFetch(url, {
+      timeout: Player.API_REQUEST_TIMEOUT,
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body
+    })
   }
 }
