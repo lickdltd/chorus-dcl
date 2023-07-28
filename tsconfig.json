@@ -1,21 +1,13 @@
 {
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "dist"
-  ],
-  "compilerOptions": {
-    "module": "ESNext",
-    "declaration": true,
-    "declarationDir": "./types",
-    "declarationMap": true,
-    "outDir": "dist",
-    "paths": {
-      "@dcl/ecs-scene-utils": [
-        "node_modules/@dcl/ecs-scene-utils/dist/index.d.ts"
-      ]
-    }
-  },
-  "extends": "./node_modules/decentraland-ecs/types/tsconfig.json"
+    "extends": "@dcl/sdk/types/tsconfig.ecs7.json",
+    "compilerOptions": {
+        "declaration": true,
+        "outDir": "./dist"
+    },
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "./dist"
+    ]
 }
