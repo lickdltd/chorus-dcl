@@ -1,3 +1,3 @@
-import { Stream } from "./stream";
+import { Player } from './player'
 
-export { Stream }
+export { Player }

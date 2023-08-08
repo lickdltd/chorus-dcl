@@ -1,22 +1,22 @@
 {
-  "name": "@lickd/chorus-dcl",
-  "version": "0.13.0",
-  "description": "Lickd Chorus DCL library",
-  "main": "./dist/index.js",
-  "typings": "./dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "watch": "npm link && tsc --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Lickd Ltd",
-  "license": "Apache-2.0",
-  "devDependencies": {
-    "@dcl-sdk/utils": "^1.1.2",
-    "@dcl/sdk": "^7.3.3",
-    "typescript": "^5.1.6"
-  },
-  "files": [
-    "./dist"
-  ]
+    "name": "@lickd/chorus-dcl",
+    "version": "0.13.0-beta.17",
+    "description": "Lickd Chorus DCL library",
+    "main": "./dist/src/index.js",
+    "typings": "./dist/src/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "watch": "npm link && tsc --watch",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Lickd Ltd",
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "@dcl-sdk/utils": "^1.1.2",
+        "@dcl/sdk": "^7.3.6",
+        "typescript": "^5.1.6"
+    },
+    "files": [
+        "./dist"
+    ]
 }
