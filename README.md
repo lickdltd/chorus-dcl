@@ -111,7 +111,7 @@ new chorus.Player('<CHORUS_STREAM_PATH>', {
 })
 ```
 
-### Set schedule
+#### Set schedule
 
 This example allows for only connecting after a scheduled date/time:
 
