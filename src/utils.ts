@@ -1,4 +1,5 @@
 import { TriggerAreaSpec } from '@dcl-sdk/utils/dist/trigger'
+import { InputAction, PointerEventType, PointerLock, engine, inputSystem } from '@dcl/sdk/ecs'
 import { Vector3 } from '@dcl/sdk/math'
 import { getSceneInfo } from '~system/Scene'
 import { TDomain, TProtocol } from './types/common'
@@ -46,5 +47,14 @@ export class Utils {
         })
 
         return areas
+    }
+
+    static isMediaAllowed(): boolean {
+        const isInputSystemTriggered = inputSystem.isTriggered(InputAction.IA_ANY, PointerEventType.PET_DOWN)
+        const isPointerLocked = PointerLock.get(engine.CameraEntity).isPointerLocked
+
+        console.log({ isInputSystemTriggered, isPointerLocked })
+
+        return isInputSystemTriggered || isPointerLocked
     }
 }

@@ -1,4 +1,5 @@
 import { FlatFetchResponse, signedFetch } from '~system/SignedFetch'
+import { name, version } from '../package.json'
 import { TApiConfig } from './types/api'
 import { Utils } from './utils'
 
@@ -37,7 +38,7 @@ export class Api {
         const baseUrl = Utils.getBaseUrl(this.config.protocol, this.config.domain, '/api')
         const headers = {
             'Content-Type': 'application/json',
-            'User-Agent': 'chorus-dcl/' + this.config.version
+            'User-Agent': [name, version].join('/')
         }
 
         console.log('making api post request', { baseUrl, endpoint, headers, body })

@@ -59,7 +59,7 @@ To use the player add the `Player` component to the entity.
 
 Player requires two arguments when being constructed:
 
-- `path`: the path of the stream connecting to
+- `path`: the path of the stream connecting to without any extension, for example: `/sample/stream`
 
 Player can optionally also take the following argument:
 
@@ -80,7 +80,9 @@ whole scene:
 ```ts
 import * as chorus from '@lickd/chorus-dcl'
 
-new chorus.Player('<CHORUS_STREAM_PATH>')
+export async function main() {
+   new chorus.Player('<CHORUS_STREAM_PATH>')
+}
 ```
 
 #### Target specific parcel(s)
@@ -90,9 +92,11 @@ This example allows for targeting specific parcels rather than the whole scene:
 ```ts
 import * as chorus from '@lickd/chorus-dcl'
 
-new chorus.Player('<CHORUS_STREAM_PATH>', { 
-   parcels: ['-150,150'] 
-})
+export async function main() {
+   new chorus.Player('<CHORUS_STREAM_PATH>', { 
+      parcels: ['-150,150']
+   })
+}
 ```
 
 #### Target designated area
@@ -102,13 +106,15 @@ This example allows for targeting designated area rather than the whole scene/pa
 ```ts
 import * as chorus from '@lickd/chorus-dcl'
 
-// update x, y & z accordingly
-const position: Vector3 = Vector3.create(9.5, 0.0, 9.5)
-const scale: Vector3 = Vector3.create(16, 10, 16)
+export async function main() {
+   // update x, y & z accordingly
+   const position: Vector3 = Vector3.create(9.5, 0.0, 9.5)
+   const scale: Vector3 = Vector3.create(16, 10, 16)
 
-new chorus.Player('<CHORUS_STREAM_PATH>', {
-   areas: [{ type: 'box', position, scale }]
-})
+   new chorus.Player('<CHORUS_STREAM_PATH>', {
+      areas: [{ type: 'box', position, scale }]
+   })
+}
 ```
 
 #### Set schedule
@@ -118,22 +124,24 @@ This example allows for only connecting after a scheduled date/time:
 ```ts
 import * as chorus from '@lickd/chorus-dcl'
 
-// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#examples
-// const dateTimeStart = new Date('0000-00-00T00:00:00')
-// const dateTimeEnd = new Date('0000-00-00T00:00:00')
-const dateTimeStart = new Date()
-const dateTimeEnd = new Date()
+export async function main() {
+   // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#examples
+   // const dateTimeStart = new Date('0000-00-00T00:00:00')
+   // const dateTimeEnd = new Date('0000-00-00T00:00:00')
+   const dateTimeStart = new Date()
+   const dateTimeEnd = new Date()
 
-// these are just an examples and not likely to be a real scenario
-dateTimeStart.setMinutes(dateTime.getMinutes() + 1)
-dateTimeEnd.setMinutes(dateTime.getMinutes() + 10)
+   // these are just an examples and not likely to be a real scenario
+   dateTimeStart.setMinutes(dateTime.getMinutes() + 1)
+   dateTimeEnd.setMinutes(dateTime.getMinutes() + 10)
 
-new chorus.Player('<CHORUS_STREAM_PATH>', { 
-    schedule: { 
-        start: dateTimeStart,
-        end: dateTimeEnd // optional
-    }
-})
+   new chorus.Player('<CHORUS_STREAM_PATH>', { 
+      schedule: { 
+         start: dateTimeStart,
+         end: dateTimeEnd // optional
+      }
+   })
+}
 ```
 
 #### Change domain
@@ -143,9 +151,24 @@ This example allows for changing the domain for the Chorus service:
 ```ts
 import * as chorus from '@lickd/chorus-dcl'
 
-new chorus.Player('<CHORUS_STREAM_PATH>', {
-    domain: '<CHORUS_DOMAIN>'
-})
+export async function main() {
+   new chorus.Player('<CHORUS_STREAM_PATH>', {
+      domain: '<CHORUS_DOMAIN>'
+   })
+}
+```
+
+#### Enable debug
+
+```ts
+import * as utils from '@dcl-sdk/utils'
+import * as chorus from '@lickd/chorus-dcl'
+
+export async function main() {
+  utils.triggers.enableDebugDraw(true)
+
+  new chorus.Player('<CHORUS_STREAM_PATH>')
+}
 ```
 
 ## Contributing

@@ -8,7 +8,3 @@ export type TCommonProtocol = {
 export type TCommonDomain = {
     domain: TDomain
 }
-
-export type TCommonVersion = {
-    version: string
-}

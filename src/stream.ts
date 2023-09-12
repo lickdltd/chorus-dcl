@@ -1,8 +1,8 @@
+import * as utils from '@dcl-sdk/utils'
 import { AudioStream, Entity } from '@dcl/sdk/ecs'
+import { Api } from './api'
 import { TStreamConfig } from './types/stream'
 import { Utils } from './utils'
-import * as utils from '@dcl-sdk/utils'
-import { Api } from './api'
 
 export class Stream {
     private heartbeatId?: number

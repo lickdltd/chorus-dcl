@@ -1,6 +1,6 @@
 {
     "name": "@lickd/chorus-dcl",
-    "version": "0.13.0-beta.17",
+    "version": "0.13.0-beta.19",
     "description": "Lickd Chorus DCL library",
     "main": "./dist/src/index.js",
     "typings": "./dist/src/index.d.ts",
@@ -13,7 +13,7 @@
     "license": "Apache-2.0",
     "devDependencies": {
         "@dcl-sdk/utils": "^1.1.2",
-        "@dcl/sdk": "^7.3.6",
+        "@dcl/sdk": "^7.3.14",
         "typescript": "^5.1.6"
     },
     "files": [

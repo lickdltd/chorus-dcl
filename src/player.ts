@@ -1,11 +1,9 @@
 import * as utils from '@dcl-sdk/utils'
 import { Entity, Transform, engine } from '@dcl/sdk/ecs'
-import ReactEcs from '@dcl/sdk/react-ecs'
-import { version } from '../package.json'
+import { Color3 } from '@dcl/sdk/math'
 import { Api } from './api'
 import { Stream } from './stream'
 import { TPlayerConfig } from './types/player'
-import { Ui } from './ui'
 import { Utils } from './utils'
 
 export class Player {
@@ -15,8 +13,6 @@ export class Player {
 
     private api: Api
 
-    private ui: Ui
-
     private stream: Stream
 
     private token?: string
@@ -25,12 +21,12 @@ export class Player {
         console.log('initialising')
 
         this.config = {
+            debugColor: Color3.Magenta(),
             domain: 'chorus.lickd.co',
             volume: 1.0,
             parcels: [],
             areas: [],
-            ...config,
-            version
+            ...config
         }
 
         console.log(this.config)
@@ -39,11 +35,6 @@ export class Player {
 
         this.api = new Api({
             protocol: Utils.getProtocol(this.config.domain),
-            domain: this.config.domain,
-            version: this.config.version
-        })
-
-        this.ui = new Ui(path, {
             domain: this.config.domain
         })
 
@@ -58,10 +49,6 @@ export class Player {
             .catch(() => console.log('initialisation failed'))
     }
 
-    public static uiComponent(): ReactEcs.JSX.Element {
-        return Ui.canvas()
-    }
-
     private async activate() {
         Transform.create(this.entity)
 
@@ -69,16 +56,21 @@ export class Player {
         const onEnter = () => this.connect()
         const onExit = () => this.disconnect()
 
-        utils.triggers.addTrigger(this.entity, utils.NO_LAYERS, utils.ALL_LAYERS, areas, onEnter, onExit)
+        utils.triggers.addTrigger(this.entity, utils.NO_LAYERS, utils.ALL_LAYERS, areas, onEnter, onExit, this.config.debugColor)
     }
 
     private async connect() {
+        if (!Utils.isMediaAllowed()) {
+            console.log('connection waiting - media not allowed yet')
+            utils.timers.setTimeout(() => this.connect(), 1000)
+            return
+        }
+
         console.log('connecting')
 
         try {
             this.token = await this.api.signIn(this.path)
 
-            this.ui.connect(this.token, () => this.reconnect())
             this.stream.connect(this.token, () => this.reconnect())
 
             console.log('connection successful')
@@ -97,7 +89,6 @@ export class Player {
             delete this.token
         }
 
-        this.ui.disconnect()
         this.stream.disconnect()
 
         console.log('disconnection successful')

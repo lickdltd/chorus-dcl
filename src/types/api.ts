@@ -1,3 +1,3 @@
-import { TCommonDomain, TCommonProtocol, TCommonVersion } from './common'
+import { TCommonDomain, TCommonProtocol } from './common'
 
-export type TApiConfig = TCommonProtocol & TCommonDomain & TCommonVersion & {}
+export type TApiConfig = TCommonProtocol & TCommonDomain
