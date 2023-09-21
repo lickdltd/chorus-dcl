@@ -24,7 +24,7 @@ export class Stream {
     }
 
     disconnect() {
-        console.log('stream connecting')
+        console.log('stream disconnecting')
 
         if (this.heartbeatId) {
             utils.timers.clearInterval(this.heartbeatId)

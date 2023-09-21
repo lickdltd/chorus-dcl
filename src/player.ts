@@ -1,5 +1,5 @@
 import * as utils from '@dcl-sdk/utils'
-import { Entity, Transform, engine } from '@dcl/sdk/ecs'
+import { Entity, PointerLock, Transform, engine } from '@dcl/sdk/ecs'
 import { Color3 } from '@dcl/sdk/math'
 import { Api } from './api'
 import { Stream } from './stream'
@@ -16,6 +16,8 @@ export class Player {
     private stream: Stream
 
     private token?: string
+
+    private userActive: boolean = false
 
     constructor(private path: string, config?: Partial<TPlayerConfig>) {
         console.log('initialising')
@@ -53,14 +55,25 @@ export class Player {
         Transform.create(this.entity)
 
         const areas = await Utils.getAreas(this.config.areas, this.config.parcels)
-        const onEnter = () => this.connect()
-        const onExit = () => this.disconnect()
+        const onEnter = () => {
+            this.userActive = true
+            this.connect()
+        }
+        const onExit = () => {
+            this.userActive = false
+            this.disconnect()
+        }
 
         utils.triggers.addTrigger(this.entity, utils.NO_LAYERS, utils.ALL_LAYERS, areas, onEnter, onExit, this.config.debugColor)
     }
 
     private async connect() {
-        if (!Utils.isMediaAllowed()) {
+        if (!this.userActive) {
+            console.log('connection cancelled - user is no longer active')
+            return
+        }
+
+        if (!PointerLock.get(engine.CameraEntity).isPointerLocked) {
             console.log('connection waiting - media not allowed yet')
             utils.timers.setTimeout(() => this.connect(), 1000)
             return
