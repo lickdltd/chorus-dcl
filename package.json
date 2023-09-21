@@ -1,65 +1,22 @@
 {
-  "name": "@lickd/chorus-dcl",
-  "version": "0.12.3",
-  "description": "Lickd Chorus DCL library",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "docs": "api-documenter markdown --output-folder docs/ --input-folder temp/",
-    "build": "rm -rf temp/ && rollup -c && npm run docs",
-    "link": "npm link && rollup --watch -c ",
-    "test": "jest --detectOpenHandles --silent=false --verbose --colors --runInBand",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix"
-  },
-  "typings": "./dist/index.d.ts",
-  "decentralandLibrary": {
-    "main": "./dist/index.js"
-  },
-  "keywords": [
-    "lickd",
-    "chorus",
-    "dcl",
-    "decentraland",
-    "sdk",
-    "library"
-  ],
-  "author": "-",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/lickdltd/chorus-dcl.git"
-  },
-  "bugs": {
-    "url": "https://github.com/lickdltd/chorus-dcl/issues"
-  },
-  "homepage": "https://github.com/lickdltd/chorus-dcl#readme",
-  "directories": {
-    "doc": "docs",
-    "test": "test"
-  },
-  "files": [
-    "dist",
-    "!dist/types"
-  ],
-  "devDependencies": {
-    "@dcl/ecs-scene-utils": "^1.7.5",
-    "@dcl/eslint-config": "^1.0.6",
-    "@microsoft/api-documenter": "^7.17.11",
-    "@rollup/plugin-commonjs": "^21.0.2",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-typescript": "^8.3.1",
-    "@types/jest": "^27.4.1",
-    "decentraland-ecs": "^6.11.11",
-    "jest": "^27.5.1",
-    "rollup": "^2.70.1",
-    "rollup-plugin-api-extractor": "^0.2.5",
-    "rollup-plugin-terser": "^7.0.2",
-    "ts-jest": "^27.1.4"
-  },
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0",
-    "yarn": "please use npm"
-  }
+    "name": "@lickd/chorus-dcl",
+    "version": "0.13.0-beta.20",
+    "description": "Lickd Chorus DCL library",
+    "main": "./dist/src/index.js",
+    "typings": "./dist/src/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "watch": "npm link && tsc --watch",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Lickd Ltd",
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "@dcl-sdk/utils": "^1.1.2",
+        "@dcl/sdk": "^7.3.14",
+        "typescript": "^5.1.6"
+    },
+    "files": [
+        "./dist"
+    ]
 }
